@@ -7,16 +7,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AdminHandlers struct {
+type Handlers struct {
+	OrganizationService
 }
 
-func NewAdminHandlers() *AdminHandlers {
-	return &AdminHandlers{}
+func NewAdminHandlers(organizationService OrganizationService) *Handlers {
+	return &Handlers{OrganizationService: organizationService}
 }
 
-func SetRequestHandlers() (*gin.Engine, error) {
+type OrganizationService interface {
+	CreateOrganization()
+}
+
+func SetRequestHandlers(service OrganizationService) (*gin.Engine, error) {
 	router := gin.New()
-	organizationHandlers := NewAdminHandlers()
+	organizationHandlers := NewAdminHandlers(service)
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(CORSMiddleware())
 	router.GET("/", func(c *gin.Context) {
