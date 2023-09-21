@@ -8,18 +8,23 @@ import (
 )
 
 type Handlers struct {
-	OrganizationService
+	svc Service
 }
 
-func NewAdminHandlers(organizationService OrganizationService) *Handlers {
-	return &Handlers{OrganizationService: organizationService}
+func NewAdminHandlers(service Service) *Handlers {
+	return &Handlers{svc: service}
+}
+
+type Service interface {
+	OrganizationService
+	SubscriptionService
 }
 
 type OrganizationService interface {
 	CreateOrganization()
 }
 
-func SetRequestHandlers(service OrganizationService) (*gin.Engine, error) {
+func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	router := gin.New()
 	organizationHandlers := NewAdminHandlers(service)
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -29,9 +34,9 @@ func SetRequestHandlers(service OrganizationService) (*gin.Engine, error) {
 	})
 	organization := router.Group("/organization")
 	{
-		organization.POST("/organization", organizationHandlers.createOrganization)
-		organization.GET("/organization", organizationHandlers.getOrganizations)
-		organization.DELETE("/organization", organizationHandlers.deleteOrganization)
+		organization.POST("/", organizationHandlers.createOrganization)
+		organization.GET("/", organizationHandlers.getOrganizations)
+		organization.DELETE("/", organizationHandlers.deleteOrganization)
 	}
 	members := organization.Group("/members")
 	{
@@ -39,6 +44,11 @@ func SetRequestHandlers(service OrganizationService) (*gin.Engine, error) {
 		members.GET("/members", organizationHandlers.getOrganizationMembers)
 		members.DELETE("/members", organizationHandlers.deleteOrganizationMembers)
 
+	}
+
+	subscription := router.Group("/subscription")
+	{
+		subscription.POST("/", organizationHandlers.createSubscription)
 	}
 	return router, nil
 }
