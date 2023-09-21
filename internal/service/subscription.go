@@ -16,6 +16,7 @@ type SubscriptionRepoInterface interface {
 	CreateSubscription(ctx context.Context, sub entities.Subscription) error
 	GetSubscriptions(ctx context.Context) ([]entities.Subscription, error)
 	GetSubscription(ctx context.Context, id string) (entities.Subscription, error)
+	UpdateSubscription(ctx context.Context, id string, subscription entities.Subscription) error
 }
 
 func NewSubscriptionService(repo SubscriptionRepoInterface) SubscriptionService {
@@ -32,7 +33,13 @@ func (svc SubscriptionService) GetSubscriptions(ctx context.Context) ([]entities
 	subs, err := svc.repo.GetSubscriptions(ctx)
 	return subs, err
 }
+
 func (svc SubscriptionService) GetSubscription(ctx context.Context, id string) (entities.Subscription, error) {
 	sub, err := svc.repo.GetSubscription(ctx, id)
 	return sub, err
+}
+
+func (svc SubscriptionService) UpdateSubscription(ctx context.Context, id string, subscription entities.Subscription) error {
+	err := svc.repo.UpdateSubscription(ctx, id, subscription)
+	return err
 }

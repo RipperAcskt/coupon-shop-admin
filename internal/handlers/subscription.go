@@ -14,6 +14,7 @@ type SubscriptionService interface {
 	CreateSubscription(ctx context.Context, sub entities.Subscription) error
 	GetSubscriptions(ctx context.Context) ([]entities.Subscription, error)
 	GetSubscription(ctx context.Context, id string) (entities.Subscription, error)
+	UpdateSubscription(ctx context.Context, id string, subscription entities.Subscription) error
 }
 
 func (handlers Handlers) createSubscription(context *gin.Context) {
@@ -96,4 +97,42 @@ func (handlers Handlers) getSubscription(context *gin.Context) {
 		return
 	}
 	context.JSON(http.StatusCreated, subs)
+}
+
+func (handlers Handlers) updateSubscription(context *gin.Context) {
+	subscription := entities.NewSubscription()
+	err := context.ShouldBindJSON(&subscription)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Errorf("should bind json failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("should bind json failed")
+		return
+	}
+
+	id := context.Param("id")
+	err = handlers.svc.UpdateSubscription(context, id, subscription)
+	if err != nil {
+		if errors.Is(err, entities.ErrSubscriptionDoesNotExist) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("create subscription failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("update subscription failed")
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{
+		"message": "subscription is successfully updated",
+	})
 }
