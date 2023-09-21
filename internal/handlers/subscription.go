@@ -12,6 +12,8 @@ import (
 
 type SubscriptionService interface {
 	CreateSubscription(ctx context.Context, sub entities.Subscription) error
+	GetSubscriptions(ctx context.Context) ([]entities.Subscription, error)
+	GetSubscription(ctx context.Context, id string) (entities.Subscription, error)
 }
 
 func (handlers Handlers) createSubscription(context *gin.Context) {
@@ -49,4 +51,49 @@ func (handlers Handlers) createSubscription(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{
 		"message": "subscription is successfully created",
 	})
+}
+
+func (handlers Handlers) getSubscriptions(context *gin.Context) {
+	subs, err := handlers.svc.GetSubscriptions(context)
+	if err != nil {
+		if errors.Is(err, entities.ErrNoAnySubscription) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("get subscriptions failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("get subscriptions failed")
+		return
+	}
+	context.JSON(http.StatusCreated, subs)
+}
+
+func (handlers Handlers) getSubscription(context *gin.Context) {
+	id := context.Param("id")
+	subs, err := handlers.svc.GetSubscription(context, id)
+	if err != nil {
+		if errors.Is(err, entities.ErrSubscriptionDoesNotExist) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("get subscription failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("get subscription failed")
+		return
+	}
+	context.JSON(http.StatusCreated, subs)
 }

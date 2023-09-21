@@ -14,6 +14,8 @@ type SubscriptionService struct {
 
 type SubscriptionRepoInterface interface {
 	CreateSubscription(ctx context.Context, sub entities.Subscription) error
+	GetSubscriptions(ctx context.Context) ([]entities.Subscription, error)
+	GetSubscription(ctx context.Context, id string) (entities.Subscription, error)
 }
 
 func NewSubscriptionService(repo SubscriptionRepoInterface) SubscriptionService {
@@ -24,4 +26,13 @@ func (svc SubscriptionService) CreateSubscription(ctx context.Context, sub entit
 	sub.ID = uuid.NewString()
 	err := svc.repo.CreateSubscription(ctx, sub)
 	return err
+}
+
+func (svc SubscriptionService) GetSubscriptions(ctx context.Context) ([]entities.Subscription, error) {
+	subs, err := svc.repo.GetSubscriptions(ctx)
+	return subs, err
+}
+func (svc SubscriptionService) GetSubscription(ctx context.Context, id string) (entities.Subscription, error) {
+	sub, err := svc.repo.GetSubscription(ctx, id)
+	return sub, err
 }

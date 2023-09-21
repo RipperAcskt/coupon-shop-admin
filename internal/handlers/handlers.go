@@ -49,6 +49,8 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	subscription := router.Group("/subscription")
 	{
 		subscription.POST("/", organizationHandlers.createSubscription)
+		subscription.GET("/", organizationHandlers.getSubscriptions)
+		subscription.GET("/:id", organizationHandlers.getSubscription)
 	}
 	return router, nil
 }
