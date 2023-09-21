@@ -78,6 +78,9 @@ func (r Repo) GetSubscription(ctx context.Context, id string) (entities.Subscrip
 	sub := entities.NewSubscription()
 	err := row.Scan(&sub.ID, &sub.Name, &sub.Description, &sub.Price, &sub.Level)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return entities.NewSubscription(), entities.ErrSubscriptionDoesNotExist
+		}
 		return entities.NewSubscription(), fmt.Errorf("row scan failed: %w", err)
 	}
 	return sub, nil
