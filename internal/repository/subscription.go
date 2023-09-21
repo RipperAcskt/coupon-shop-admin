@@ -15,8 +15,7 @@ func (r Repo) CreateSubscription(ctx context.Context, sub entities.Subscription)
 	defer cancel()
 
 	var id string
-	err := r.db.QueryRowContext(queryContext, "SELECT id FROM subscriptions WHERE name = $1 AND description = $2 AND price = $3",
-		sub.Name, sub.Description, sub.Price).Scan(&id)
+	err := r.db.QueryRowContext(queryContext, "SELECT id FROM subscriptions WHERE level = $1", sub.Level).Scan(&id)
 	if err == nil {
 		return entities.ErrSubscriptionAlreadyExists
 	}
