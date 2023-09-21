@@ -15,6 +15,7 @@ type SubscriptionService interface {
 	GetSubscriptions(ctx context.Context) ([]entities.Subscription, error)
 	GetSubscription(ctx context.Context, id string) (entities.Subscription, error)
 	UpdateSubscription(ctx context.Context, id string, subscription entities.Subscription) error
+	DeleteSubscription(ctx context.Context, id string) error
 }
 
 func (handlers Handlers) createSubscription(context *gin.Context) {
@@ -134,5 +135,30 @@ func (handlers Handlers) updateSubscription(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, gin.H{
 		"message": "subscription is successfully updated",
+	})
+}
+
+func (handlers Handlers) deleteSubscription(context *gin.Context) {
+	id := context.Param("id")
+	err := handlers.svc.DeleteSubscription(context, id)
+	if err != nil {
+		if errors.Is(err, entities.ErrSubscriptionDoesNotExist) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("create subscription failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("delete subscription failed")
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{
+		"message": "subscription is successfully deleted",
 	})
 }

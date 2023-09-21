@@ -113,3 +113,22 @@ func (r Repo) UpdateSubscription(ctx context.Context, id string, subscription en
 	}
 	return nil
 }
+
+func (r Repo) DeleteSubscription(ctx context.Context, id string) error {
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	res, err := r.db.ExecContext(queryCtx, "DELETE FROM subscriptions WHERE id = $1", id)
+	if err != nil {
+		return fmt.Errorf("exec context failed: %w", err)
+	}
+
+	num, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected failed: %w", err)
+	}
+	if num == 0 {
+		return entities.ErrSubscriptionDoesNotExist
+	}
+	return nil
+}
