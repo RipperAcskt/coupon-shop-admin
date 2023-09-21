@@ -52,6 +52,7 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 		subscription.GET("/", organizationHandlers.getSubscriptions)
 		subscription.GET("/:id", organizationHandlers.getSubscription)
 		subscription.PUT("/:id", organizationHandlers.updateSubscription)
+		subscription.DELETE("/:id", organizationHandlers.deleteSubscription)
 	}
 	return router, nil
 }
