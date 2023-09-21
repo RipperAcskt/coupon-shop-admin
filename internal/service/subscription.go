@@ -22,6 +22,6 @@ func NewSubscriptionService(repo SubscriptionRepoInterface) SubscriptionService 
 
 func (svc SubscriptionService) CreateSubscription(ctx context.Context, sub entities.Subscription) error {
 	sub.ID = uuid.NewString()
-
-	return svc.repo.CreateSubscription(ctx, sub)
+	err := svc.repo.CreateSubscription(ctx, sub)
+	return err
 }

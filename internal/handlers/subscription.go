@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/RipperAcskt/coupon-shop-admin/internal/entities"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,13 @@ func (handlers Handlers) createSubscription(context *gin.Context) {
 
 	err = handlers.svc.CreateSubscription(context, subscription)
 	if err != nil {
+		if errors.Is(err, entities.ErrSubscriptionAlreadyExists) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
 		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Errorf("create subscription failed: %w", err).Error(),
 		})

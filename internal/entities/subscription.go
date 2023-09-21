@@ -1,5 +1,11 @@
 package entities
 
+import "errors"
+
+var (
+	ErrSubscriptionAlreadyExists = errors.New("subscription already exists")
+)
+
 type Subscription struct {
 	ID          string `json:"-"`
 	Name        string `json:"name"`

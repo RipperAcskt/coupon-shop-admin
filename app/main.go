@@ -4,23 +4,23 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/RipperAcskt/coupon-shop-admin/config"
 	"github.com/RipperAcskt/coupon-shop-admin/internal/handlers"
 	"github.com/RipperAcskt/coupon-shop-admin/internal/repository"
 	"github.com/RipperAcskt/coupon-shop-admin/internal/service"
 
-	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	err := godotenv.Load(".env")
+	cfg, err := config.New()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err,
-		}).Fatal("load env failed")
+		}).Fatal("config new failed")
 	}
 
-	repo, err := repository.New()
+	repo, err := repository.New(cfg)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err,
