@@ -12,6 +12,12 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+type transferSubscription struct {
+	Name        *string
+	Description *string
+	Price       *int
+}
+
 func (r Repo) CreateSubscription(ctx context.Context, sub entities.Subscription) error {
 	queryContext, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
@@ -75,4 +81,35 @@ func (r Repo) GetSubscription(ctx context.Context, id string) (entities.Subscrip
 		return entities.NewSubscription(), fmt.Errorf("row scan failed: %w", err)
 	}
 	return sub, nil
+}
+
+func (r Repo) UpdateSubscription(ctx context.Context, id string, subscription entities.Subscription) error {
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var transfer transferSubscription
+	if subscription.Name != "" {
+		transfer.Name = &subscription.Name
+	}
+	if subscription.Description != "" {
+		transfer.Description = &subscription.Description
+	}
+	if subscription.Price != 0 {
+		transfer.Price = &subscription.Price
+	}
+
+	res, err := r.db.ExecContext(queryCtx, "UPDATE subscriptions SET name = COALESCE($1, name), description = COALESCE($2, description), price = COALESCE($3, price) WHERE id = $4",
+		transfer.Name, transfer.Description, transfer.Price, id)
+	if err != nil {
+		return fmt.Errorf("exec context failed: %w", err)
+	}
+
+	num, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected failed: %w", err)
+	}
+	if num == 0 {
+		return entities.ErrSubscriptionDoesNotExist
+	}
+	return nil
 }
