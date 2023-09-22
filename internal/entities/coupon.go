@@ -1,14 +1,25 @@
 package entities
 
-import "github.com/google/uuid"
+import (
+	"errors"
+	"fmt"
+	"github.com/google/uuid"
+)
+
+var (
+	ErrNoAnyCoupons       = errors.New("there is not a single coupon")
+	ErrCouponDoesNotExist = errors.New("coupon does not exist")
+	ErrNoMedia            = fmt.Errorf("no media")
+)
 
 type Coupon struct {
 	ID          string `json:"id"`
-	Name        string `form:"name"`
-	Description string `form:"description"`
-	Price       int    `form:"price"`
-	Level       int    `form:"level"`
-	Media       Media
+	Name        string `form:"name" json:"name"`
+	Description string `form:"description" json:"description"`
+	Price       int    `form:"price" json:"price"`
+	Level       int    `form:"level" json:"level"`
+	ContentUrl  string `json:"content_url"`
+	Media       Media  `json:"-"`
 }
 
 type Media struct {
@@ -17,13 +28,15 @@ type Media struct {
 }
 
 func NewCoupon() Coupon {
-	return Coupon{}
+	return Coupon{
+		ID: uuid.NewString(),
+	}
 }
 
 func NewMedia() Media {
 	id := uuid.NewString()
 	return Media{
 		ID:   id,
-		Path: "/store/" + id,
+		Path: "/store/" + id + ".jpg",
 	}
 }

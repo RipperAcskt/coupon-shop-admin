@@ -59,7 +59,10 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	coupon := router.Group("/coupon")
 	{
 		coupon.POST("/", handlers.createCoupon)
+		coupon.GET("/", handlers.getCoupons)
 	}
+
+	router.GET("/store/:id", handlers.getContent)
 	return router, nil
 }
 
