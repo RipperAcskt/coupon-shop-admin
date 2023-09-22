@@ -21,10 +21,6 @@ type Service interface {
 	CouponService
 }
 
-type OrganizationService interface {
-	CreateOrganization()
-}
-
 func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	router := gin.New()
 	handlers := NewAdminHandlers(service)
@@ -35,15 +31,15 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	})
 	organization := router.Group("/organization")
 	{
-		organization.POST("/", handlers.createOrganization)
-		organization.GET("/", handlers.getOrganizations)
-		organization.DELETE("/", handlers.deleteOrganization)
+		organization.POST("/", organizationHandlers.createOrganization)
+		organization.GET("/", organizationHandlers.getOrganizations)
+		organization.DELETE("/:id", organizationHandlers.deleteOrganization)
 	}
 	members := organization.Group("/members")
 	{
-		members.POST("/members", handlers.addOrganizationMembers)
-		members.GET("/members", handlers.getOrganizationMembers)
-		members.DELETE("/members", handlers.deleteOrganizationMembers)
+		members.POST("/", organizationHandlers.addOrganizationMembers)
+		members.GET("/", organizationHandlers.getOrganizationMembers)
+		members.DELETE("/:id", organizationHandlers.deleteOrganizationMembers)
 
 	}
 

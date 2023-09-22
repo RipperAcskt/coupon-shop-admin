@@ -125,7 +125,7 @@ func (handlers Handlers) updateSubscription(context *gin.Context) {
 		}
 
 		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Errorf("create subscription failed: %w", err).Error(),
+			"error": fmt.Errorf("update subscription failed: %w", err).Error(),
 		})
 
 		logrus.WithFields(logrus.Fields{
@@ -150,7 +150,7 @@ func (handlers Handlers) deleteSubscription(context *gin.Context) {
 		}
 
 		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Errorf("create subscription failed: %w", err).Error(),
+			"error": fmt.Errorf("delete subscription failed: %w", err).Error(),
 		})
 
 		logrus.WithFields(logrus.Fields{
