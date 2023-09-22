@@ -1,6 +1,9 @@
 package entities
 
-import "errors"
+import (
+	"errors"
+	"github.com/google/uuid"
+)
 
 var (
 	ErrSubscriptionAlreadyExists = errors.New("subscription already exists")
@@ -17,5 +20,7 @@ type Subscription struct {
 }
 
 func NewSubscription() Subscription {
-	return Subscription{}
+	return Subscription{
+		ID: uuid.NewString(),
+	}
 }

@@ -18,11 +18,12 @@ func NewAdminHandlers(service Service) *Handlers {
 type Service interface {
 	OrganizationService
 	SubscriptionService
+	CouponService
 }
 
 func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	router := gin.New()
-	organizationHandlers := NewAdminHandlers(service)
+	handlers := NewAdminHandlers(service)
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(CORSMiddleware())
 	router.GET("/", func(c *gin.Context) {
@@ -44,12 +45,20 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 
 	subscription := router.Group("/subscription")
 	{
-		subscription.POST("/", organizationHandlers.createSubscription)
-		subscription.GET("/", organizationHandlers.getSubscriptions)
-		subscription.GET("/:id", organizationHandlers.getSubscription)
-		subscription.PUT("/:id", organizationHandlers.updateSubscription)
-		subscription.DELETE("/:id", organizationHandlers.deleteSubscription)
+		subscription.POST("/", handlers.createSubscription)
+		subscription.GET("/", handlers.getSubscriptions)
+		subscription.GET("/:id", handlers.getSubscription)
+		subscription.PUT("/:id", handlers.updateSubscription)
+		subscription.DELETE("/:id", handlers.deleteSubscription)
 	}
+
+	coupon := router.Group("/coupon")
+	{
+		coupon.POST("/", handlers.createCoupon)
+		coupon.GET("/", handlers.getCoupons)
+	}
+
+	router.GET("/store/:id", handlers.getContent)
 	return router, nil
 }
 
