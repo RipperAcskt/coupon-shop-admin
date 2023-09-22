@@ -18,6 +18,7 @@ func NewAdminHandlers(service Service) *Handlers {
 type Service interface {
 	OrganizationService
 	SubscriptionService
+	CouponService
 }
 
 type OrganizationService interface {
@@ -26,7 +27,7 @@ type OrganizationService interface {
 
 func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	router := gin.New()
-	organizationHandlers := NewAdminHandlers(service)
+	handlers := NewAdminHandlers(service)
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(CORSMiddleware())
 	router.GET("/", func(c *gin.Context) {
@@ -34,25 +35,30 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	})
 	organization := router.Group("/organization")
 	{
-		organization.POST("/", organizationHandlers.createOrganization)
-		organization.GET("/", organizationHandlers.getOrganizations)
-		organization.DELETE("/", organizationHandlers.deleteOrganization)
+		organization.POST("/", handlers.createOrganization)
+		organization.GET("/", handlers.getOrganizations)
+		organization.DELETE("/", handlers.deleteOrganization)
 	}
 	members := organization.Group("/members")
 	{
-		members.POST("/members", organizationHandlers.addOrganizationMembers)
-		members.GET("/members", organizationHandlers.getOrganizationMembers)
-		members.DELETE("/members", organizationHandlers.deleteOrganizationMembers)
+		members.POST("/members", handlers.addOrganizationMembers)
+		members.GET("/members", handlers.getOrganizationMembers)
+		members.DELETE("/members", handlers.deleteOrganizationMembers)
 
 	}
 
 	subscription := router.Group("/subscription")
 	{
-		subscription.POST("/", organizationHandlers.createSubscription)
-		subscription.GET("/", organizationHandlers.getSubscriptions)
-		subscription.GET("/:id", organizationHandlers.getSubscription)
-		subscription.PUT("/:id", organizationHandlers.updateSubscription)
-		subscription.DELETE("/:id", organizationHandlers.deleteSubscription)
+		subscription.POST("/", handlers.createSubscription)
+		subscription.GET("/", handlers.getSubscriptions)
+		subscription.GET("/:id", handlers.getSubscription)
+		subscription.PUT("/:id", handlers.updateSubscription)
+		subscription.DELETE("/:id", handlers.deleteSubscription)
+	}
+
+	coupon := router.Group("/coupon")
+	{
+		coupon.POST("/", handlers.createCoupon)
 	}
 	return router, nil
 }
