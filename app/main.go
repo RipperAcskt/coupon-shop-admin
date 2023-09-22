@@ -35,7 +35,7 @@ func main() {
 		}
 	}()
 
-	svc := service.New(repo)
+	svc := service.New(repo, cfg)
 	handlersEngine, err := handlers.SetRequestHandlers(svc)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
