@@ -31,15 +31,15 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	})
 	organization := router.Group("/organization")
 	{
-		organization.POST("/", organizationHandlers.createOrganization)
-		organization.GET("/", organizationHandlers.getOrganizations)
-		organization.DELETE("/:id", organizationHandlers.deleteOrganization)
+		organization.POST("/", handlers.createOrganization)
+		organization.GET("/", handlers.getOrganizations)
+		organization.DELETE("/:id", handlers.deleteOrganization)
 	}
 	members := organization.Group("/members")
 	{
-		members.POST("/", organizationHandlers.addOrganizationMembers)
-		members.GET("/", organizationHandlers.getOrganizationMembers)
-		members.DELETE("/:id", organizationHandlers.deleteOrganizationMembers)
+		members.POST("/", handlers.addOrganizationMembers)
+		members.GET("/", handlers.getOrganizationMembers)
+		members.DELETE("/:id", handlers.deleteOrganizationMembers)
 
 	}
 
