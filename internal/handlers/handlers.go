@@ -20,10 +20,6 @@ type Service interface {
 	SubscriptionService
 }
 
-type OrganizationService interface {
-	CreateOrganization()
-}
-
 func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	router := gin.New()
 	organizationHandlers := NewAdminHandlers(service)
@@ -36,13 +32,13 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	{
 		organization.POST("/", organizationHandlers.createOrganization)
 		organization.GET("/", organizationHandlers.getOrganizations)
-		organization.DELETE("/", organizationHandlers.deleteOrganization)
+		organization.DELETE("/:id", organizationHandlers.deleteOrganization)
 	}
 	members := organization.Group("/members")
 	{
-		members.POST("/members", organizationHandlers.addOrganizationMembers)
-		members.GET("/members", organizationHandlers.getOrganizationMembers)
-		members.DELETE("/members", organizationHandlers.deleteOrganizationMembers)
+		members.POST("/", organizationHandlers.addOrganizationMembers)
+		members.GET("/", organizationHandlers.getOrganizationMembers)
+		members.DELETE("/:id", organizationHandlers.deleteOrganizationMembers)
 
 	}
 
