@@ -16,6 +16,7 @@ func NewAdminHandlers(service Service) *Handlers {
 }
 
 type Service interface {
+	MemberService
 	OrganizationService
 	SubscriptionService
 	CouponService
@@ -33,16 +34,16 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	{
 		organization.POST("/", handlers.createOrganization)
 		organization.GET("/", handlers.getOrganizations)
+		organization.GET("/:id")
 		organization.DELETE("/:id", handlers.deleteOrganization)
 	}
-	members := organization.Group("/members")
+	members := organization.Group("/:id/members")
 	{
 		members.POST("/", handlers.addOrganizationMembers)
 		members.GET("/", handlers.getOrganizationMembers)
-		members.DELETE("/:id", handlers.deleteOrganizationMembers)
+		members.DELETE("/", handlers.deleteOrganizationMembers)
 
 	}
-
 	subscription := router.Group("/subscription")
 	{
 		subscription.POST("/", handlers.createSubscription)
