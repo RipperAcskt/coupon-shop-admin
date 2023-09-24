@@ -8,11 +8,13 @@ import "errors"
 //}
 
 var (
-	ErrMembersAlreadyAdded = errors.New("organization already exists")
+	ErrMembersAlreadyAdded = errors.New("members are already added")
 )
 
 type Member struct {
-	Email      string `json:"email"`
-	FirstName  string `json:"name"`
-	SecondName string `json:"secondName"`
+	ID             string `json:"id"`
+	Email          string `json:"email"`
+	FirstName      string `json:"name"`
+	SecondName     string `json:"secondName"`
+	OrganizationID string `json:"organizationID"`
 }

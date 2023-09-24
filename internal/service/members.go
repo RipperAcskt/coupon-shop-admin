@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/RipperAcskt/coupon-shop-admin/internal/entities"
+	"github.com/google/uuid"
 )
 
 type MembersService struct {
@@ -10,16 +11,20 @@ type MembersService struct {
 }
 
 type MembersRepoInterface interface {
-	AddMembers(ctx context.Context, members []entities.Member, id string) error
-	GetMembers(ctx context.Context, organizationID string) ([]entities.Member, error)
-	DeleteMembers(ctx context.Context, membersToDelete []entities.Member) error
+	AddMembers(ctx context.Context, members []entities.Member) error //GetMembers(ctx context.Context, organizationID string) ([]entities.Member, error)
+	//DeleteMembers(ctx context.Context, membersToDelete []entities.Member, organizationID string) error
 }
 
 func NewMembersService(repo MembersRepoInterface) MembersService {
 	return MembersService{repo: repo}
 }
 
-func (svc OrganizationService) AddMembers(ctx context.Context, org entities.Organization) error {
-	err := svc.repo.CreateOrganization(ctx, org)
+func (svc MembersService) AddMembers(ctx context.Context, members []entities.Member, organizationID string) error {
+	for i := range members {
+		members[i].ID = uuid.NewString()
+		members[i].OrganizationID = organizationID
+
+	}
+	err := svc.repo.AddMembers(ctx, members)
 	return err
 }

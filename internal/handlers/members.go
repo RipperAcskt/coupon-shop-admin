@@ -11,9 +11,9 @@ import (
 )
 
 type MemberService interface {
-	AddMembers(ctx context.Context, members []entities.Member, id string) error
-	GetMembers(ctx context.Context, organizationID string) ([]entities.Member, error)
-	DeleteMembers(ctx context.Context, membersToDelete []entities.Member) error
+	AddMembers(ctx context.Context, members []entities.Member, organizationID string) error
+	//GetMembers(ctx context.Context, organizationID string) ([]entities.Member, error)
+	//DeleteMembers(ctx context.Context, membersToDelete []entities.Member) error
 }
 
 func (handlers Handlers) addMembers(context *gin.Context) {
@@ -30,7 +30,6 @@ func (handlers Handlers) addMembers(context *gin.Context) {
 		}).Error("should bind json failed")
 		return
 	}
-
 	err = handlers.svc.AddMembers(context, members, id)
 	if err != nil {
 		if errors.Is(err, entities.ErrMembersAlreadyAdded) {

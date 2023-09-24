@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 );
 
 CREATE TABLE IF NOT EXISTS organization (
-    id VARCHAR,
+    id VARCHAR PRIMARY KEY,
     name VARCHAR NOT NULL,
-    email_admin VARCHAR NOT NULL PRIMARY KEY,
+    email_admin VARCHAR NOT NULL,
     level_subscription INT
 );

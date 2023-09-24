@@ -100,15 +100,3 @@ func (handlers Handlers) deleteOrganization(context *gin.Context) {
 		"message": "organization is successfully deleted",
 	})
 }
-
-func (handlers Handlers) addOrganizationMembers(context *gin.Context) {
-
-}
-
-func (handlers Handlers) deleteOrganizationMembers(context *gin.Context) {
-
-}
-
-func (handlers Handlers) getOrganizationMembers(context *gin.Context) {
-
-}
