@@ -9,10 +9,11 @@ var (
 )
 
 type Organization struct {
-	ID                string `json:"id"`
-	Name              string `json:"name"`
-	EmailAdmin        string `json:"email_admin"`
-	LevelSubscription int    `json:"levelSubscription"`
+	ID                string   `json:"id"`
+	Name              string   `json:"name"`
+	EmailAdmin        string   `json:"email_admin"`
+	LevelSubscription int      `json:"levelSubscription"`
+	Members           []Member `json:"members"`
 }
 
 func NewOrganization() Organization {

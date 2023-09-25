@@ -72,3 +72,45 @@ func (r Repo) DeleteOrganization(ctx context.Context, id string) error {
 	}
 	return nil
 }
+
+func (r Repo) GetOrganization(ctx context.Context, organizationID string) (entities.Organization, error) {
+	queryContext, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
+	row := r.db.QueryRowContext(queryContext, "SELECT * FROM organization WHERE id = $1", organizationID)
+	if row.Err() != nil {
+		if errors.Is(row.Err(), sql.ErrNoRows) {
+			return entities.NewOrganization(), entities.ErrOrganizationnDoesNotExist
+		}
+		return entities.NewOrganization(), fmt.Errorf("query row context failed: %w", row.Err())
+	}
+
+	org := entities.NewOrganization()
+	err := row.Scan(&org.ID, &org.Name, &org.EmailAdmin, &org.LevelSubscription)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return entities.NewOrganization(), entities.ErrSubscriptionDoesNotExist
+		}
+		return entities.NewOrganization(), fmt.Errorf("row scan failed: %w", err)
+	}
+
+	rows, err := r.db.QueryContext(queryContext, "SELECT * FROM members WHERE organization_id = $1", organizationID)
+	if err != nil {
+		return org, nil
+	}
+	defer rows.Close()
+
+	members := make([]entities.Member, 0)
+	for rows.Next() {
+		member := entities.Member{}
+		err := rows.Scan(&member.ID, &member.Email, &member.FirstName, &member.SecondName, &member.OrganizationID)
+		if err != nil {
+			return org, fmt.Errorf("rows scan failed: %w", err)
+		}
+
+		members = append(members, member)
+	}
+	org.Members = members
+
+	return org, nil
+}

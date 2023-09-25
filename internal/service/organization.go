@@ -14,6 +14,7 @@ type OrganizationRepoInterface interface {
 	CreateOrganization(ctx context.Context, org entities.Organization) error
 	GetOrganizations(ctx context.Context) ([]entities.Organization, error)
 	DeleteOrganization(ctx context.Context, id string) error
+	GetOrganization(ctx context.Context, organizationID string) (entities.Organization, error)
 }
 
 func NewOrganizationService(repo OrganizationRepoInterface) OrganizationService {
@@ -34,4 +35,12 @@ func (svc OrganizationService) GetOrganizations(ctx context.Context) ([]entities
 func (svc OrganizationService) DeleteOrganization(ctx context.Context, id string) error {
 	err := svc.repo.DeleteOrganization(ctx, id)
 	return err
+}
+
+func (svc OrganizationService) GetOrganization(ctx context.Context, organizationID string) (entities.Organization, error) {
+	org, err := svc.repo.GetOrganization(ctx, organizationID)
+	if err != nil {
+		return entities.Organization{}, err
+	}
+	return org, nil
 }
