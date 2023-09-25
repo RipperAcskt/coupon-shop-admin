@@ -13,6 +13,7 @@ import (
 type OrganizationService interface {
 	CreateOrganization(ctx context.Context, org entities.Organization) error
 	GetOrganizations(ctx context.Context) ([]entities.Organization, error)
+	GetOrganization(ctx context.Context, organizationID string) (entities.Organization, error)
 	DeleteOrganization(ctx context.Context, id string) error
 }
 
@@ -99,4 +100,27 @@ func (handlers Handlers) deleteOrganization(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{
 		"message": "organization is successfully deleted",
 	})
+}
+
+func (handlers Handlers) getOrganization(context *gin.Context) {
+	id := context.Param("id")
+	org, err := handlers.svc.GetOrganization(context, id)
+	if err != nil {
+		if errors.Is(err, entities.ErrOrganizationnDoesNotExist) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("get organization failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("get organization failed")
+		return
+	}
+	context.JSON(http.StatusCreated, org)
 }

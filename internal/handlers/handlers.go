@@ -34,7 +34,7 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	{
 		organization.POST("/", handlers.createOrganization)
 		organization.GET("/", handlers.getOrganizations)
-		organization.GET("/:id")
+		organization.GET("/:id", handlers.getOrganization)
 		organization.DELETE("/:id", handlers.deleteOrganization)
 	}
 	members := organization.Group("/members")

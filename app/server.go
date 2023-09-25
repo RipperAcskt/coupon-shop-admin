@@ -20,7 +20,7 @@ func (s *Server) Run(handler http.Handler) error {
 		Addr:    os.Getenv("SERVER_HOST"),
 		Handler: handler,
 	}
-
+	fmt.Println(s.httpServer.Addr)
 	return s.httpServer.ListenAndServe()
 }
 
