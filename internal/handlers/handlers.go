@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/RipperAcskt/coupon-shop-admin/config"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,10 +10,11 @@ import (
 
 type Handlers struct {
 	svc Service
+	cfg config.Config
 }
 
-func NewAdminHandlers(service Service) *Handlers {
-	return &Handlers{svc: service}
+func NewAdminHandlers(service Service, cfg config.Config) *Handlers {
+	return &Handlers{svc: service, cfg: cfg}
 }
 
 type Service interface {
@@ -20,11 +22,12 @@ type Service interface {
 	OrganizationService
 	SubscriptionService
 	CouponService
+	AuthService
 }
 
-func SetRequestHandlers(service Service) (*gin.Engine, error) {
+func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error) {
 	router := gin.New()
-	handlers := NewAdminHandlers(service)
+	handlers := NewAdminHandlers(service, cfg)
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(CORSMiddleware())
 	router.GET("/", func(c *gin.Context) {
@@ -32,6 +35,8 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	})
 	organization := router.Group("/organization")
 	{
+		organization.Use(handlers.VerifyToken())
+
 		organization.POST("/", handlers.createOrganization)
 		organization.GET("/", handlers.getOrganizations)
 		organization.GET("/:id", handlers.getOrganization)
@@ -39,6 +44,8 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	}
 	members := organization.Group("/members")
 	{
+		members.Use(handlers.VerifyToken())
+
 		members.POST("/:id", handlers.addMembers)
 		//members.GET("/", handlers.ge)
 		//members.DELETE("/", handlers.deleteOrganizationMembers)
@@ -46,6 +53,8 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	}
 	subscription := router.Group("/subscription")
 	{
+		subscription.Use(handlers.VerifyToken())
+
 		subscription.POST("/", handlers.createSubscription)
 		subscription.GET("/", handlers.getSubscriptions)
 		subscription.GET("/:id", handlers.getSubscription)
@@ -55,6 +64,8 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 
 	coupon := router.Group("/coupon")
 	{
+		coupon.Use(handlers.VerifyToken())
+
 		coupon.POST("/", handlers.createCoupon)
 		coupon.GET("/", handlers.getCoupons)
 		coupon.GET("/:id", handlers.getCoupon)
@@ -62,7 +73,14 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 		coupon.DELETE("/:id", handlers.deleteCoupon)
 	}
 
-	router.GET("/store/:id", handlers.getContent)
+	auth := router.Group("/auth")
+	{
+		auth.POST("/sing-in", handlers.SingIn)
+		auth.GET("/refresh", handlers.Refresh)
+		auth.GET("/logout", handlers.Logout)
+	}
+
+	router.GET("/store/:id", handlers.VerifyToken(), handlers.getContent)
 	return router, nil
 }
 

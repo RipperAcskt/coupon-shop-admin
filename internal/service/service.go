@@ -7,6 +7,7 @@ type Service struct {
 	SubscriptionService
 	OrganizationService
 	CouponService
+	AuthService
 }
 
 type Repo interface {
@@ -16,11 +17,16 @@ type Repo interface {
 	CouponRepoInterface
 }
 
-func New(repo Repo, cfg config.Config) Service {
+type Cache interface {
+	TokenRepo
+}
+
+func New(repo Repo, cache Cache, cfg config.Config) Service {
 	return Service{
 		SubscriptionService: NewSubscriptionService(repo),
 		OrganizationService: NewOrganizationService(repo),
 		CouponService:       NewCouponService(repo, cfg),
 		MembersService:      NewMembersService(repo),
+		AuthService:         NewAuthService(cache, cfg),
 	}
 }
