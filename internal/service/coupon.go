@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/RipperAcskt/coupon-shop-admin/config"
 	"github.com/RipperAcskt/coupon-shop-admin/internal/entities"
+	"os"
 )
 
 type CouponService struct {
@@ -17,6 +18,7 @@ type CouponRepoInterface interface {
 	GetCoupons(ctx context.Context) ([]entities.Coupon, error)
 	GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
 	UpdateCoupon(ctx context.Context, id string, coupon entities.Coupon) error
+	DeleteCoupon(ctx context.Context, id string) error
 }
 
 func NewCouponService(repo CouponRepoInterface, cfg config.Config) CouponService {
@@ -56,5 +58,14 @@ func (svc CouponService) GetCoupon(ctx context.Context, id string) (entities.Cou
 
 func (svc CouponService) UpdateCoupon(ctx context.Context, id string, coupon entities.Coupon) error {
 	err := svc.repo.UpdateCoupon(ctx, id, coupon)
+	return err
+}
+
+func (svc CouponService) DeleteCoupon(ctx context.Context, id string) error {
+	err := os.Remove("./store/" + id + ".jpg")
+	if err != nil {
+		return fmt.Errorf("remove failed: %w", err)
+	}
+	err = svc.repo.DeleteCoupon(ctx, id)
 	return err
 }

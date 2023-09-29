@@ -59,6 +59,7 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 		coupon.GET("/", handlers.getCoupons)
 		coupon.GET("/:id", handlers.getCoupon)
 		coupon.PUT("/:id", handlers.updateCoupon)
+		coupon.DELETE("/:id", handlers.deleteCoupon)
 	}
 
 	router.GET("/store/:id", handlers.getContent)

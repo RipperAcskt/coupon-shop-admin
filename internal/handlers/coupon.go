@@ -15,6 +15,7 @@ type CouponService interface {
 	GetCoupons(ctx context.Context) ([]entities.Coupon, error)
 	GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
 	UpdateCoupon(ctx context.Context, id string, coupon entities.Coupon) error
+	DeleteCoupon(ctx context.Context, id string) error
 }
 
 func (handlers Handlers) createCoupon(context *gin.Context) {
@@ -179,5 +180,30 @@ func (handlers Handlers) updateCoupon(context *gin.Context) {
 	}
 	context.JSON(http.StatusCreated, gin.H{
 		"message": "coupon is successfully updated",
+	})
+}
+
+func (handlers Handlers) deleteCoupon(context *gin.Context) {
+	id := context.Param("id")
+	err := handlers.svc.DeleteCoupon(context, id)
+	if err != nil {
+		if errors.Is(err, entities.ErrSubscriptionDoesNotExist) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("delete subscription failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("delete coupon failed")
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{
+		"message": "coupon is successfully deleted",
 	})
 }

@@ -169,3 +169,22 @@ func (r Repo) UpdateCoupon(ctx context.Context, id string, coupon entities.Coupo
 	}
 	return nil
 }
+
+func (r Repo) DeleteCoupon(ctx context.Context, id string) error {
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	res, err := r.db.ExecContext(queryCtx, "DELETE FROM coupons WHERE id = $1", id)
+	if err != nil {
+		return fmt.Errorf("exec context failed: %w", err)
+	}
+
+	num, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected failed: %w", err)
+	}
+	if num == 0 {
+		return entities.ErrCouponDoesNotExist
+	}
+	return nil
+}
