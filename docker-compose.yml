@@ -11,6 +11,18 @@ services:
       - .:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
+
+  redis:
+    image: redis:latest
+    command: >
+      --requirepass 123
+    volumes:
+      - .:/data/redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+    ports:
+      - "6379:6379"
+
   coupon-shop-admin:
     ports:
       - '8080:8080'
@@ -19,3 +31,4 @@ services:
       - ./config/.env
     depends_on:
       - postgres
+      - redis

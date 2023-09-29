@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"github.com/RipperAcskt/coupon-shop-admin/internal/repository/redis"
 	"net/http"
 
 	"github.com/RipperAcskt/coupon-shop-admin/config"
@@ -35,8 +36,15 @@ func main() {
 		}
 	}()
 
-	svc := service.New(repo, cfg)
-	handlersEngine, err := handlers.SetRequestHandlers(svc)
+	cache, err := redis.New(cfg)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Fatal("redis new failed")
+	}
+
+	svc := service.New(repo, cache, cfg)
+	handlersEngine, err := handlers.SetRequestHandlers(svc, cfg)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err,

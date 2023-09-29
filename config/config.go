@@ -15,6 +15,17 @@ type Config struct {
 	MigratePath        string `env:"MIGRATE_PATH"`
 
 	ServerHost string `env:"SERVER_HOST"`
+
+	AdminLogin string `env:"ADMIN_LOGIN"`
+	AdminPass  string `env:"ADMIN_PASS"`
+
+	AccessTokenExp  int    `env:"ACCESS_TOKEN_EXP"`
+	RefreshTokenExp int    `env:"REFRESH_TOKEN_EXP"`
+	Hs256Secret     string `env:"HS256_SECRET"`
+
+	RedisDbHost     string `env:"REDIS_DB_HOST"`
+	RedisDbPassword string `env:"REDIS_DB_PASSWORD"`
+	RedisDbName     int    `env:"REDIS_DB_NAME"`
 }
 
 func New() (Config, error) {
