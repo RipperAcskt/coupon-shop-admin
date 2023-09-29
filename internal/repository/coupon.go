@@ -12,6 +12,12 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+type transferCoupon struct {
+	Name        *string
+	Description *string
+	Price       *int
+}
+
 func (r Repo) CreateCoupon(ctx context.Context, coupon entities.Coupon) error {
 	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -68,7 +74,7 @@ func (r Repo) GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
 	queryContext, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 
-	row := r.db.QueryRowContext(queryContext, "SELECT * FROM coupon WHERE id = $1", id)
+	row := r.db.QueryRowContext(queryContext, "SELECT * FROM coupons WHERE id = $1", id)
 	if row.Err() != nil {
 		if errors.Is(row.Err(), sql.ErrNoRows) {
 			return entities.NewCoupon(), entities.ErrSubscriptionDoesNotExist
@@ -115,4 +121,51 @@ func (r Repo) getMyMedia(ctx context.Context, id string) (entities.Media, error)
 	}
 
 	return media, nil
+}
+
+func (r Repo) UpdateCoupon(ctx context.Context, id string, coupon entities.Coupon) error {
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var transfer transferCoupon
+	if coupon.Name != "" {
+		transfer.Name = &coupon.Name
+	}
+	if coupon.Description != "" {
+		transfer.Description = &coupon.Description
+	}
+	if coupon.Price != 0 {
+		transfer.Price = &coupon.Price
+	}
+
+	res, err := r.db.ExecContext(queryCtx, "UPDATE coupons SET name = COALESCE($1, name), description = COALESCE($2, description), price = COALESCE($3, price) WHERE id = $4",
+		transfer.Name, transfer.Description, transfer.Price, id)
+	if err != nil {
+		return fmt.Errorf("exec context failed: %w", err)
+	}
+
+	num, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected failed: %w", err)
+	}
+	if num == 0 {
+		return entities.ErrCouponDoesNotExist
+	}
+
+	if coupon.Media.Path != "" {
+		res, err := r.db.ExecContext(queryCtx, "UPDATE media SET path = COALESCE($1, path) WHERE coupon_id = $2",
+			coupon.Media.Path, id)
+		if err != nil {
+			return fmt.Errorf("exec context media failed: %w", err)
+		}
+
+		num, err := res.RowsAffected()
+		if err != nil {
+			return fmt.Errorf("rows affected media failed: %w", err)
+		}
+		if num == 0 {
+			return entities.ErrCouponDoesNotExist
+		}
+	}
+	return nil
 }

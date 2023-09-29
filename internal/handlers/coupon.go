@@ -14,6 +14,7 @@ type CouponService interface {
 	CreateCoupon(ctx context.Context, coupon entities.Coupon) error
 	GetCoupons(ctx context.Context) ([]entities.Coupon, error)
 	GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
+	UpdateCoupon(ctx context.Context, id string, coupon entities.Coupon) error
 }
 
 func (handlers Handlers) createCoupon(context *gin.Context) {
@@ -119,4 +120,64 @@ func (handlers Handlers) getCoupon(context *gin.Context) {
 
 func (handlers Handlers) getContent(context *gin.Context) {
 	context.File("." + context.Request.URL.Path)
+}
+
+func (handlers Handlers) updateCoupon(context *gin.Context) {
+	id := context.Param("id")
+
+	coupon := entities.NewCoupon()
+
+	file, err := context.FormFile("file")
+	if err == nil {
+		media := entities.NewMediaId(id)
+
+		file.Filename = media.ID
+		err := context.SaveUploadedFile(file, "./store/"+media.ID+".jpg")
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Errorf("save upload file failed: %w", err).Error(),
+			})
+
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Error("save upload file failed")
+			return
+		}
+
+		coupon.Media = media
+	}
+
+	err = context.ShouldBind(&coupon)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Errorf("should bind json failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("should bind json failed")
+		return
+	}
+
+	err = handlers.svc.UpdateCoupon(context, id, coupon)
+	if err != nil {
+		if errors.Is(err, entities.ErrSubscriptionAlreadyExists) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("update coupon failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("update coupon failed")
+		return
+	}
+	context.JSON(http.StatusCreated, gin.H{
+		"message": "coupon is successfully updated",
+	})
 }

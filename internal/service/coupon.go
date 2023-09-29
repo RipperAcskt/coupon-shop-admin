@@ -16,6 +16,7 @@ type CouponRepoInterface interface {
 	CreateCoupon(ctx context.Context, coupon entities.Coupon) error
 	GetCoupons(ctx context.Context) ([]entities.Coupon, error)
 	GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
+	UpdateCoupon(ctx context.Context, id string, coupon entities.Coupon) error
 }
 
 func NewCouponService(repo CouponRepoInterface, cfg config.Config) CouponService {
@@ -51,4 +52,9 @@ func (svc CouponService) GetCoupon(ctx context.Context, id string) (entities.Cou
 	coupon.ContentUrl = svc.cfg.ServerHost + coupon.Media.Path
 
 	return coupon, err
+}
+
+func (svc CouponService) UpdateCoupon(ctx context.Context, id string, coupon entities.Coupon) error {
+	err := svc.repo.UpdateCoupon(ctx, id, coupon)
+	return err
 }

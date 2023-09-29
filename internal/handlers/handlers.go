@@ -57,6 +57,8 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	{
 		coupon.POST("/", handlers.createCoupon)
 		coupon.GET("/", handlers.getCoupons)
+		coupon.GET("/:id", handlers.getCoupon)
+		coupon.PUT("/:id", handlers.updateCoupon)
 	}
 
 	router.GET("/store/:id", handlers.getContent)
