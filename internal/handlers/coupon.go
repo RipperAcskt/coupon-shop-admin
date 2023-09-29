@@ -13,6 +13,7 @@ import (
 type CouponService interface {
 	CreateCoupon(ctx context.Context, coupon entities.Coupon) error
 	GetCoupons(ctx context.Context) ([]entities.Coupon, error)
+	GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
 }
 
 func (handlers Handlers) createCoupon(context *gin.Context) {
@@ -91,6 +92,29 @@ func (handlers Handlers) getCoupons(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, coupons)
+}
+
+func (handlers Handlers) getCoupon(context *gin.Context) {
+	id := context.Param("id")
+	coupon, err := handlers.svc.GetCoupon(context, id)
+	if err != nil {
+		if errors.Is(err, entities.ErrSubscriptionDoesNotExist) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("get coupon failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("get coupon failed")
+		return
+	}
+	context.JSON(http.StatusCreated, coupon)
 }
 
 func (handlers Handlers) getContent(context *gin.Context) {
