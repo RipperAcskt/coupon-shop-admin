@@ -40,3 +40,10 @@ func NewMedia() Media {
 		Path: "/store/" + id + ".jpg",
 	}
 }
+
+func NewMediaId(id string) Media {
+	return Media{
+		ID:   id,
+		Path: "/store/" + id + ".jpg",
+	}
+}
