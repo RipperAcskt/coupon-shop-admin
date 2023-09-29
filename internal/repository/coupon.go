@@ -64,6 +64,37 @@ func (r Repo) GetCoupons(ctx context.Context) ([]entities.Coupon, error) {
 	return coupons, nil
 }
 
+func (r Repo) GetCoupon(ctx context.Context, id string) (entities.Coupon, error) {
+	queryContext, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
+	row := r.db.QueryRowContext(queryContext, "SELECT * FROM coupon WHERE id = $1", id)
+	if row.Err() != nil {
+		if errors.Is(row.Err(), sql.ErrNoRows) {
+			return entities.NewCoupon(), entities.ErrSubscriptionDoesNotExist
+		}
+		return entities.NewCoupon(), fmt.Errorf("query row context failed: %w", row.Err())
+	}
+
+	coupon := entities.NewCoupon()
+	err := row.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Level)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return entities.NewCoupon(), entities.ErrCouponDoesNotExist
+		}
+		return entities.NewCoupon(), fmt.Errorf("row scan failed: %w", err)
+	}
+
+	media, err := r.getMyMedia(ctx, coupon.ID)
+	if err != nil {
+		return entities.NewCoupon(), fmt.Errorf("get media failed: %w", err)
+	}
+
+	coupon.Media = media
+
+	return coupon, nil
+}
+
 func (r Repo) getMyMedia(ctx context.Context, id string) (entities.Media, error) {
 	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()

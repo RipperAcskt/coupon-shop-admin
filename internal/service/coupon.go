@@ -15,6 +15,7 @@ type CouponService struct {
 type CouponRepoInterface interface {
 	CreateCoupon(ctx context.Context, coupon entities.Coupon) error
 	GetCoupons(ctx context.Context) ([]entities.Coupon, error)
+	GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
 }
 
 func NewCouponService(repo CouponRepoInterface, cfg config.Config) CouponService {
@@ -39,4 +40,15 @@ func (svc CouponService) GetCoupons(ctx context.Context) ([]entities.Coupon, err
 		coupons[i].ContentUrl = svc.cfg.ServerHost + coupon.Media.Path
 	}
 	return coupons, err
+}
+
+func (svc CouponService) GetCoupon(ctx context.Context, id string) (entities.Coupon, error) {
+	coupon, err := svc.repo.GetCoupon(ctx, id)
+	if err != nil {
+		return entities.NewCoupon(), fmt.Errorf("get coupon failed: %w", err)
+	}
+
+	coupon.ContentUrl = svc.cfg.ServerHost + coupon.Media.Path
+
+	return coupon, err
 }
