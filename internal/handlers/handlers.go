@@ -41,7 +41,7 @@ func SetRequestHandlers(service Service) (*gin.Engine, error) {
 	{
 		members.POST("/:id", handlers.addMembers)
 		//members.GET("/", handlers.ge)
-		//members.DELETE("/", handlers.deleteOrganizationMembers)
+		members.DELETE("/:id", handlers.deleteMembers)
 
 	}
 	subscription := router.Group("/subscription")

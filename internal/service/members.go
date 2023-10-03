@@ -12,7 +12,7 @@ type MembersService struct {
 
 type MembersRepoInterface interface {
 	AddMembers(ctx context.Context, members []entities.Member) error //GetMembers(ctx context.Context, organizationID string) ([]entities.Member, error)
-	//DeleteMembers(ctx context.Context, membersToDelete []entities.Member, organizationID string) error
+	DeleteMembers(ctx context.Context, membersToDelete []entities.Member, organizationID string) error
 }
 
 func NewMembersService(repo MembersRepoInterface) MembersService {
@@ -26,5 +26,15 @@ func (svc MembersService) AddMembers(ctx context.Context, members []entities.Mem
 
 	}
 	err := svc.repo.AddMembers(ctx, members)
+	return err
+}
+
+func (svc MembersService) DeleteMembers(ctx context.Context, members []entities.Member, organizationID string) error {
+	for i := range members {
+		members[i].ID = uuid.NewString()
+		members[i].OrganizationID = organizationID
+
+	}
+	err := svc.repo.DeleteMembers(ctx, members, organizationID)
 	return err
 }
