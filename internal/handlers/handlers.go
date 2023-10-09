@@ -30,10 +30,12 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 	handlers := NewAdminHandlers(service, cfg)
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(CORSMiddleware())
-	router.GET("/", func(c *gin.Context) {
+	admin := router.Group("/admin")
+
+	admin.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, "hello message")
 	})
-	organization := router.Group("/organization")
+	organization := admin.Group("/organization")
 	{
 		organization.Use(handlers.VerifyToken())
 
@@ -51,7 +53,7 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 		//members.DELETE("/", handlers.deleteOrganizationMembers)
 
 	}
-	subscription := router.Group("/subscription")
+	subscription := admin.Group("/subscription")
 	{
 		subscription.Use(handlers.VerifyToken())
 
@@ -62,7 +64,7 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 		subscription.DELETE("/:id", handlers.deleteSubscription)
 	}
 
-	coupon := router.Group("/coupon")
+	coupon := admin.Group("/coupon")
 	{
 		coupon.Use(handlers.VerifyToken())
 
@@ -73,14 +75,14 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 		coupon.DELETE("/:id", handlers.deleteCoupon)
 	}
 
-	auth := router.Group("/auth")
+	auth := admin.Group("/auth")
 	{
 		auth.POST("/sing-in", handlers.SingIn)
 		auth.GET("/refresh", handlers.Refresh)
 		auth.GET("/logout", handlers.Logout)
 	}
 
-	router.GET("/store/:id", handlers.VerifyToken(), handlers.getContent)
+	admin.GET("/store/:id", handlers.VerifyToken(), handlers.getContent)
 	return router, nil
 }
 
