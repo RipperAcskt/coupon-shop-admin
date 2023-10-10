@@ -40,11 +40,18 @@ services:
   coupon-shop:
     container_name: coupon-shop
     image: ripperacskt/coupon-shop:latest
+    volumes:
+      - ./migrations:/app/migrations
     depends_on:
       - postgres
       - redis
     ports:
       - "3000:3000"
+  coupon-shop-front:
+    container_name: coupon-shop-front
+    image: ripperacskt/coupon-shop-front:latest
+    ports:
+      - "4001:5000"
 
   nginx:
     image: nginx:alpine
