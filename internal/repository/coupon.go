@@ -16,13 +16,14 @@ type transferCoupon struct {
 	Name        *string
 	Description *string
 	Price       *int
+	Percent     *int
 }
 
 func (r Repo) CreateCoupon(ctx context.Context, coupon entities.Coupon) error {
 	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	row := r.db.QueryRowContext(queryCtx, "INSERT INTO coupons VALUES($1, $2, $3, $4, $5)", coupon.ID, coupon.Name, coupon.Description, coupon.Price, coupon.Level)
+	row := r.db.QueryRowContext(queryCtx, "INSERT INTO coupons VALUES($1, $2, $3, $4, $5, $6)", coupon.ID, coupon.Name, coupon.Description, coupon.Price, coupon.Percent, coupon.Level)
 	if row.Err() != nil {
 		return fmt.Errorf("query row context order failed: %w", row.Err())
 	}
@@ -52,7 +53,7 @@ func (r Repo) GetCoupons(ctx context.Context) ([]entities.Coupon, error) {
 
 	for rows.Next() {
 		coupon := entities.NewCoupon()
-		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Level)
+		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level)
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
@@ -83,7 +84,7 @@ func (r Repo) GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
 	}
 
 	coupon := entities.NewCoupon()
-	err := row.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Level)
+	err := row.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entities.NewCoupon(), entities.ErrCouponDoesNotExist
@@ -137,9 +138,12 @@ func (r Repo) UpdateCoupon(ctx context.Context, id string, coupon entities.Coupo
 	if coupon.Price != 0 {
 		transfer.Price = &coupon.Price
 	}
+	if coupon.Percent != 0 {
+		transfer.Percent = &coupon.Percent
+	}
 
-	res, err := r.db.ExecContext(queryCtx, "UPDATE coupons SET name = COALESCE($1, name), description = COALESCE($2, description), price = COALESCE($3, price) WHERE id = $4",
-		transfer.Name, transfer.Description, transfer.Price, id)
+	res, err := r.db.ExecContext(queryCtx, "UPDATE coupons SET name = COALESCE($1, name), description = COALESCE($2, description), price = COALESCE($3, price), percent = COALESCE($4, percent) WHERE id = $5",
+		transfer.Name, transfer.Description, transfer.Price, transfer.Percent, id)
 	if err != nil {
 		return fmt.Errorf("exec context failed: %w", err)
 	}

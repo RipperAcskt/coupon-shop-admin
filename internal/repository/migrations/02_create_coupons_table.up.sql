@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS coupons (
     name VARCHAR NOT NULL,
     description VARCHAR NOT NULL,
     price int NOT NULL,
+    percent int NOT NULL,
     level int NOT NULL
 );

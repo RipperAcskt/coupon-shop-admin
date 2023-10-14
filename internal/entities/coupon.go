@@ -18,6 +18,7 @@ type Coupon struct {
 	Description string `form:"description" json:"description"`
 	Price       int    `form:"price" json:"price"`
 	Level       int    `form:"level" json:"level"`
+	Percent     int    `form:"percent" json:"percent"`
 	ContentUrl  string `json:"content_url"`
 	Media       Media  `json:"-"`
 }
