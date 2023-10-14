@@ -50,7 +50,7 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 
 		members.POST("/:id", handlers.addMembers)
 		//members.GET("/", handlers.ge)
-		//members.DELETE("/", handlers.deleteOrganizationMembers)
+		members.DELETE("/:id", handlers.deleteMembers)
 
 	}
 	subscription := admin.Group("/subscription")

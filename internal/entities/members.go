@@ -9,6 +9,7 @@ import "errors"
 
 var (
 	ErrMembersAlreadyAdded = errors.New("members are already added")
+	ErrMembersDoesntExist  = errors.New("members doesn't exist")
 )
 
 type Member struct {

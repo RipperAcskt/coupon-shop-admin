@@ -12,8 +12,7 @@ import (
 
 type MemberService interface {
 	AddMembers(ctx context.Context, members []entities.Member, organizationID string) error
-	//GetMembers(ctx context.Context, organizationID string) ([]entities.Member, error)
-	//DeleteMembers(ctx context.Context, membersToDelete []entities.Member) error
+	DeleteMembers(ctx context.Context, membersToDelete []entities.Member, organizationID string) error
 }
 
 func (handlers Handlers) addMembers(context *gin.Context) {
@@ -50,5 +49,42 @@ func (handlers Handlers) addMembers(context *gin.Context) {
 	}
 	context.JSON(http.StatusCreated, gin.H{
 		"message": "members are successfully added",
+	})
+}
+
+func (handlers Handlers) deleteMembers(context *gin.Context) {
+	id := context.Param("id")
+	members := make([]entities.Member, 0)
+	err := context.ShouldBindJSON(&members)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Errorf("should bind json failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("should bind json failed")
+		return
+	}
+	err = handlers.svc.DeleteMembers(context, members, id)
+	if err != nil {
+		if errors.Is(err, entities.ErrMembersAlreadyAdded) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("deleting members failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("deleting members failed")
+		return
+	}
+	context.JSON(http.StatusCreated, gin.H{
+		"message": "members are successfully delited",
 	})
 }
