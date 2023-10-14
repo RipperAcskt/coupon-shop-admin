@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"github.com/RipperAcskt/coupon-shop-admin/internal/repository/redis"
 	"net/http"
@@ -61,7 +62,14 @@ func main() {
 			return
 		}
 	}()
-
+	go func() {
+		if err := StartGrpcServer(context.Background(), svc.SubscriptionService, svc.CouponService); err != nil {
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Error("server run failed")
+			return
+		}
+	}()
 	if err := srv.WaitForShutDown(); err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err,

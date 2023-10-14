@@ -122,5 +122,5 @@ func (handlers Handlers) getOrganization(context *gin.Context) {
 		}).Error("get organization failed")
 		return
 	}
-	context.JSON(http.StatusCreated, org)
+	context.JSON(http.StatusOK, org)
 }
