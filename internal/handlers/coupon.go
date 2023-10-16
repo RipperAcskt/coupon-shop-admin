@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"strings"
 )
 
 type CouponService interface {
@@ -19,7 +20,11 @@ type CouponService interface {
 }
 
 func (handlers Handlers) createCoupon(context *gin.Context) {
+	coupon := entities.NewCoupon()
+
 	media := entities.NewMedia()
+
+	media.ID = coupon.ID
 
 	file, _ := context.FormFile("file")
 	file.Filename = media.ID
@@ -35,7 +40,6 @@ func (handlers Handlers) createCoupon(context *gin.Context) {
 		return
 	}
 
-	coupon := entities.NewCoupon()
 	coupon.Media = media
 
 	err = context.ShouldBind(&coupon)
@@ -120,7 +124,8 @@ func (handlers Handlers) getCoupon(context *gin.Context) {
 }
 
 func (handlers Handlers) getContent(context *gin.Context) {
-	context.File("." + context.Request.URL.Path)
+	file := "." + strings.TrimPrefix(context.Request.URL.Path, "/admin")
+	context.File(file)
 }
 
 func (handlers Handlers) updateCoupon(context *gin.Context) {

@@ -4,5 +4,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     status BOOLEAN NOT NULL DEFAULT false,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     owner_id VARCHAR NOT NULL,
+    payment_type VARCHAR NOT NULL,
+    entity_id VARCHAR NOT NULL,
     CONSTRAINT fk_user FOREIGN KEY(owner_id) REFERENCES users(id)
 );

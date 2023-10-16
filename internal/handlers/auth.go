@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -32,6 +33,8 @@ func (handlers Handlers) SingIn(c *gin.Context) {
 		})
 		return
 	}
+
+	log.Println(auth)
 
 	token, err := handlers.svc.SingIn(auth)
 	if err != nil {

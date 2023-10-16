@@ -26,7 +26,7 @@ type Service interface {
 }
 
 func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error) {
-	router := gin.New()
+	router := gin.Default()
 	handlers := NewAdminHandlers(service, cfg)
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(CORSMiddleware())
@@ -39,8 +39,8 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 	{
 		organization.Use(handlers.VerifyToken())
 
-		organization.POST("/", handlers.createOrganization)
-		organization.GET("/", handlers.getOrganizations)
+		organization.POST("", handlers.createOrganization)
+		organization.GET("", handlers.getOrganizations)
 		organization.GET("/:id", handlers.getOrganization)
 		organization.DELETE("/:id", handlers.deleteOrganization)
 	}
@@ -57,8 +57,8 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 	{
 		subscription.Use(handlers.VerifyToken())
 
-		subscription.POST("/", handlers.createSubscription)
-		subscription.GET("/", handlers.getSubscriptions)
+		subscription.POST("", handlers.createSubscription)
+		subscription.GET("", handlers.getSubscriptions)
 		subscription.GET("/:id", handlers.getSubscription)
 		subscription.PUT("/:id", handlers.updateSubscription)
 		subscription.DELETE("/:id", handlers.deleteSubscription)
@@ -68,8 +68,8 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 	{
 		coupon.Use(handlers.VerifyToken())
 
-		coupon.POST("/", handlers.createCoupon)
-		coupon.GET("/", handlers.getCoupons)
+		coupon.POST("", handlers.createCoupon)
+		coupon.GET("", handlers.getCoupons)
 		coupon.GET("/:id", handlers.getCoupon)
 		coupon.PUT("/:id", handlers.updateCoupon)
 		coupon.DELETE("/:id", handlers.deleteCoupon)

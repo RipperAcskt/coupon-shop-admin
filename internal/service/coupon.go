@@ -40,7 +40,7 @@ func (svc CouponService) GetCoupons(ctx context.Context) ([]entities.Coupon, err
 	}
 
 	for i, coupon := range coupons {
-		coupons[i].ContentUrl = svc.cfg.ServerHost + coupon.Media.Path
+		coupons[i].ContentUrl = "http://parcus.shop/admin" + coupon.Media.Path
 	}
 	return coupons, err
 }
@@ -51,7 +51,7 @@ func (svc CouponService) GetCoupon(ctx context.Context, id string) (entities.Cou
 		return entities.NewCoupon(), fmt.Errorf("get coupon failed: %w", err)
 	}
 
-	coupon.ContentUrl = svc.cfg.ServerHost + coupon.Media.Path
+	coupon.ContentUrl = "http://parcus.shop/admin" + coupon.Media.Path
 
 	return coupon, err
 }

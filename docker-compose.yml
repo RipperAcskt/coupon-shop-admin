@@ -29,6 +29,7 @@ services:
     image: ripperacskt/coupon-shop-admin:latest
     volumes:
       - ./internal/repository/migrations:/app/internal/repository/migrations
+      - ./store:/app/store
     env_file:
       - ./config/.env
     depends_on:
@@ -36,6 +37,7 @@ services:
       - redis
     ports:
       - "4000:4000"
+      - "8081:8081"
 
   coupon-shop:
     container_name: coupon-shop
@@ -51,7 +53,7 @@ services:
     container_name: coupon-shop-front
     image: ripperacskt/coupon-shop-front:latest
     ports:
-      - "4001:5000"
+      - "4001:9999"
 
   nginx:
     image: nginx:alpine

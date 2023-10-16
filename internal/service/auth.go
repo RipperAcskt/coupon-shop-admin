@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/RipperAcskt/coupon-shop-admin/config"
 	"github.com/RipperAcskt/coupon-shop-admin/internal/entities"
+	"log"
 	"time"
 )
 
@@ -25,6 +26,7 @@ func NewAuthService(repo TokenRepo, cfg config.Config) AuthService {
 }
 
 func (svc AuthService) SingIn(authInfo entities.Auth) (*entities.Token, error) {
+	log.Printf("%+v\n", svc.cfg)
 	if authInfo.Login != svc.cfg.AdminLogin || authInfo.Password != svc.cfg.PostgresDBPassword {
 		return nil, entities.ErrWrongLoginOrPassword
 	}
