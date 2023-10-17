@@ -26,9 +26,21 @@ func (handlers Handlers) createCoupon(context *gin.Context) {
 
 	media.ID = coupon.ID
 
-	file, _ := context.FormFile("file")
+	file, err := context.FormFile("file")
+	if err != nil {
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Errorf("receiving file failed: %w", err).Error(),
+			})
+
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Error("receiving file failed")
+			return
+		}
+	}
 	file.Filename = media.ID
-	err := context.SaveUploadedFile(file, "./store/"+media.ID+".jpg")
+	err = context.SaveUploadedFile(file, "./store/"+media.ID+".jpg")
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": fmt.Errorf("save upload file failed: %w", err).Error(),
