@@ -82,7 +82,7 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 		auth.GET("/logout", handlers.Logout)
 	}
 
-	admin.GET("/store/:id", handlers.VerifyToken(), handlers.getContent)
+	admin.GET("/store/:id", handlers.getContent)
 	return router, nil
 }
 
