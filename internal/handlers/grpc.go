@@ -11,6 +11,7 @@ import (
 type Server struct {
 	service.CouponService
 	service.SubscriptionService
+	service.OrganizationService
 	adminpb.UnimplementedAdminServiceServer
 }
 
@@ -66,5 +67,30 @@ func (s Server) GetCouponsGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb
 
 		Response.Coupons[i] = coupon
 	}
+	return Response, nil
+}
+
+func (s Server) GetOrganizationInfo(ctx context.Context, in *adminpb.InfoOrganizationRequest) (*adminpb.InfoOrganizationResponse, error) {
+	orgInfo, err := s.OrganizationService.GetOrganization(ctx, in.GetOrgId())
+	if err != nil {
+		return nil, err
+	}
+	var Response = &adminpb.InfoOrganizationResponse{
+		ID:                orgInfo.ID,
+		Name:              orgInfo.Name,
+		EmailAdmin:        orgInfo.EmailAdmin,
+		LevelSubscription: int32(orgInfo.LevelSubscription),
+		Members:           make([]*adminpb.MemberInfo, len(orgInfo.Members)),
+	}
+	for i, v := range orgInfo.Members {
+		Response.Members[i] = &adminpb.MemberInfo{
+			Id:         v.ID,
+			Email:      v.Email,
+			FirstName:  v.FirstName,
+			SecondName: v.SecondName,
+			OrgID:      v.OrganizationID,
+		}
+	}
+
 	return Response, nil
 }

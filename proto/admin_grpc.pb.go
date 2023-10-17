@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AdminService_GetSubsGRPC_FullMethodName    = "/api.AdminService/GetSubsGRPC"
-	AdminService_GetCouponsGRPC_FullMethodName = "/api.AdminService/GetCouponsGRPC"
+	AdminService_GetSubsGRPC_FullMethodName         = "/api.AdminService/GetSubsGRPC"
+	AdminService_GetCouponsGRPC_FullMethodName      = "/api.AdminService/GetCouponsGRPC"
+	AdminService_GetOrganizationInfo_FullMethodName = "/api.AdminService/GetOrganizationInfo"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -29,6 +30,7 @@ const (
 type AdminServiceClient interface {
 	GetSubsGRPC(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*SubscriptionsResponse, error)
 	GetCouponsGRPC(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetCouponsResponse, error)
+	GetOrganizationInfo(ctx context.Context, in *InfoOrganizationRequest, opts ...grpc.CallOption) (*InfoOrganizationResponse, error)
 }
 
 type adminServiceClient struct {
@@ -57,12 +59,22 @@ func (c *adminServiceClient) GetCouponsGRPC(ctx context.Context, in *Empty, opts
 	return out, nil
 }
 
+func (c *adminServiceClient) GetOrganizationInfo(ctx context.Context, in *InfoOrganizationRequest, opts ...grpc.CallOption) (*InfoOrganizationResponse, error) {
+	out := new(InfoOrganizationResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetOrganizationInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServiceServer is the server API for AdminService service.
 // All implementations must embed UnimplementedAdminServiceServer
 // for forward compatibility
 type AdminServiceServer interface {
 	GetSubsGRPC(context.Context, *Empty) (*SubscriptionsResponse, error)
 	GetCouponsGRPC(context.Context, *Empty) (*GetCouponsResponse, error)
+	GetOrganizationInfo(context.Context, *InfoOrganizationRequest) (*InfoOrganizationResponse, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
 
@@ -75,6 +87,9 @@ func (UnimplementedAdminServiceServer) GetSubsGRPC(context.Context, *Empty) (*Su
 }
 func (UnimplementedAdminServiceServer) GetCouponsGRPC(context.Context, *Empty) (*GetCouponsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCouponsGRPC not implemented")
+}
+func (UnimplementedAdminServiceServer) GetOrganizationInfo(context.Context, *InfoOrganizationRequest) (*InfoOrganizationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrganizationInfo not implemented")
 }
 func (UnimplementedAdminServiceServer) mustEmbedUnimplementedAdminServiceServer() {}
 
@@ -125,6 +140,24 @@ func _AdminService_GetCouponsGRPC_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_GetOrganizationInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InfoOrganizationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetOrganizationInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetOrganizationInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetOrganizationInfo(ctx, req.(*InfoOrganizationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCouponsGRPC",
 			Handler:    _AdminService_GetCouponsGRPC_Handler,
+		},
+		{
+			MethodName: "GetOrganizationInfo",
+			Handler:    _AdminService_GetOrganizationInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
