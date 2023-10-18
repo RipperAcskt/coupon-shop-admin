@@ -22,9 +22,7 @@ type CouponService interface {
 func (handlers Handlers) createCoupon(context *gin.Context) {
 	coupon := entities.NewCoupon()
 
-	media := entities.NewMedia()
-
-	media.ID = coupon.ID
+	media := entities.NewMediaId(coupon.ID)
 
 	file, err := context.FormFile("file")
 	if err != nil {
