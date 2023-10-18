@@ -8,7 +8,7 @@ option go_package = "coupon-shop-admin/proto";
 message Subscription {
   string name = 1;
   string description =2;
-  int32 price =3;
+  int32 price = 3;
   int32 level = 4;
 }
 
@@ -40,7 +40,28 @@ message GetCouponsResponse {
   repeated Coupon coupons = 1;
 }
 
+message InfoOrganizationRequest {
+  string orgId = 1;
+}
+
+message InfoOrganizationResponse {
+  string ID = 1;
+  string name = 2;
+  string emailAdmin = 3;
+  int32 levelSubscription = 4;
+  repeated MemberInfo members = 5;
+}
+
+message MemberInfo {
+  string id = 1;
+  string email = 2;
+  string firstName = 3;
+  string secondName = 4;
+  string orgID = 5;
+}
+
 service AdminService  {
   rpc GetSubsGRPC(Empty) returns (SubscriptionsResponse){};
   rpc GetCouponsGRPC(Empty) returns (GetCouponsResponse){};
+  rpc GetOrganizationInfo(InfoOrganizationRequest) returns (InfoOrganizationResponse){};
 }

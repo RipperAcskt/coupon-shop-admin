@@ -63,7 +63,7 @@ func main() {
 		}
 	}()
 	go func() {
-		if err := StartGrpcServer(context.Background(), svc.SubscriptionService, svc.CouponService); err != nil {
+		if err := StartGrpcServer(context.Background(), svc.SubscriptionService, svc.CouponService, svc.OrganizationService); err != nil {
 			logrus.WithFields(logrus.Fields{
 				"error": err,
 			}).Error("server run failed")
