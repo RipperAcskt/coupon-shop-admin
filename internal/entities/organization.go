@@ -1,6 +1,9 @@
 package entities
 
-import "errors"
+import (
+	"errors"
+	"github.com/google/uuid"
+)
 
 var (
 	ErrOrganizationAlreadyExists = errors.New("organization already exists")
@@ -9,19 +12,42 @@ var (
 )
 
 type Organization struct {
-	ID                string   `json:"id"`
-	Name              string   `json:"name"`
-	EmailAdmin        string   `json:"email_admin"`
-	LevelSubscription int      `json:"levelSubscription"`
+	ID                string   `form:"id" json:"id"`
+	Name              string   `form:"name" json:"name"`
+	EmailAdmin        string   `form:"email_admin" json:"email_admin"`
+	LevelSubscription int      `form:"level_subscription" json:"level_subscription"`
+	ORGN              string   `form:"orgn" json:"orgn"`
+	KPP               string   `form:"kpp" json:"kpp"`
+	INN               string   `form:"inn" json:"inn"`
+	Address           string   `form:"address" json:"address"`
 	Members           []Member `json:"members"`
+	OrgImage          Image    `json:"-"`
+	ContentUrl        string   `json:"content_url"`
 }
 
 func NewOrganization() Organization {
-	return Organization{}
+	return Organization{
+		ID: uuid.NewString(),
+	}
+
 }
 
-const (
-	LowLevel = iota + 1
-	MidLevel
-	HighLevel
-)
+type Image struct {
+	ID   string
+	Path string
+}
+
+func NewImageID(ID string) Image {
+	return Image{
+		ID:   ID,
+		Path: "/store/organization/" + ID + ".jpg",
+	}
+}
+
+func NewImage() Image {
+	id := uuid.NewString()
+	return Image{
+		ID:   id,
+		Path: "/store/organization/" + id + ".jpg",
+	}
+}

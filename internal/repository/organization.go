@@ -18,13 +18,28 @@ func (r Repo) CreateOrganization(ctx context.Context, org entities.Organization)
 	if err == nil {
 		return entities.ErrOrganizationAlreadyExists
 	}
-	//TODO : firstly we should check, if the level is listed in tables subscription
-	_, err = r.db.ExecContext(queryContext, "INSERT INTO organization VALUES ($1, $2, $3, $4)",
-		org.ID, org.Name, org.EmailAdmin, org.LevelSubscription)
+	subs, err := r.GetSubscriptions(ctx)
+	if err != nil {
+		return err
+	}
+	isLevelCorrect := false
+	for _, v := range subs {
+		if v.Level == org.LevelSubscription {
+			isLevelCorrect = true
+		}
+	}
+	if isLevelCorrect == false {
+		return fmt.Errorf("error : level of subscription isn't correct")
+	}
+	_, err = r.db.ExecContext(queryContext, "INSERT INTO organization VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+		org.ID, org.Name, org.EmailAdmin, org.LevelSubscription, org.ORGN, org.KPP, org.INN, org.Address)
 	if err != nil {
 		return fmt.Errorf("exec context failed: %w", err)
 	}
-
+	row := r.db.QueryRowContext(ctx, "INSERT INTO images VALUES($1, $2, $3)", org.OrgImage.ID, org.ID, org.OrgImage.Path)
+	if row.Err() != nil {
+		return fmt.Errorf("query row context failed: %w", row.Err())
+	}
 	return nil
 }
 
@@ -44,12 +59,18 @@ func (r Repo) GetOrganizations(ctx context.Context) ([]entities.Organization, er
 	orgs := make([]entities.Organization, 0)
 	for rows.Next() {
 		org := entities.NewOrganization()
-		err := rows.Scan(&org.ID, &org.Name, &org.EmailAdmin, &org.LevelSubscription)
+		err := rows.Scan(&org.ID, &org.Name, &org.EmailAdmin, &org.LevelSubscription, &org.ORGN, &org.KPP, &org.INN, &org.Address)
 		if err != nil {
 			return nil, fmt.Errorf("rows scan failed: %w", err)
 		}
 
+		media, err := r.getMyImage(ctx, org.ID)
+		if err != nil {
+			return nil, fmt.Errorf("get media failed: %w", err)
+		}
+		org.OrgImage = media
 		orgs = append(orgs, org)
+
 	}
 	return orgs, nil
 }
@@ -86,7 +107,7 @@ func (r Repo) GetOrganization(ctx context.Context, organizationID string) (entit
 	}
 
 	org := entities.NewOrganization()
-	err := row.Scan(&org.ID, &org.Name, &org.EmailAdmin, &org.LevelSubscription)
+	err := row.Scan(&org.ID, &org.Name, &org.EmailAdmin, &org.LevelSubscription, &org.ORGN, &org.KPP, &org.INN, &org.Address)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entities.NewOrganization(), entities.ErrSubscriptionDoesNotExist
@@ -112,5 +133,34 @@ func (r Repo) GetOrganization(ctx context.Context, organizationID string) (entit
 	}
 	org.Members = members
 
+	image, err := r.getMyImage(ctx, org.ID)
+	if err != nil {
+		return org, fmt.Errorf("get media failed: %w", err)
+	}
+
+	org.OrgImage = image
+
 	return org, nil
+}
+
+func (r Repo) getMyImage(ctx context.Context, id string) (entities.Image, error) {
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	rows, err := r.db.QueryContext(queryCtx, "SELECT m.id, m.path FROM images m INNER JOIN organization c ON m.organization_id = c.id WHERE c.id = $1", id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return entities.NewImage(), entities.ErrNoMedia
+		}
+
+		return entities.NewImage(), fmt.Errorf("query context media failed: %w", err)
+	}
+	rows.Next()
+	media := entities.NewImage()
+	err = rows.Scan(&media.ID, &media.Path)
+	if err != nil {
+		return entities.NewImage(), fmt.Errorf("scan failed: %w", err)
+	}
+
+	return media, nil
 }

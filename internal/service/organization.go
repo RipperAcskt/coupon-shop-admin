@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"github.com/RipperAcskt/coupon-shop-admin/internal/entities"
-	"github.com/google/uuid"
 )
 
 type OrganizationService struct {
@@ -22,13 +21,18 @@ func NewOrganizationService(repo OrganizationRepoInterface) OrganizationService 
 }
 
 func (svc OrganizationService) CreateOrganization(ctx context.Context, org entities.Organization) error {
-	org.ID = uuid.NewString()
 	err := svc.repo.CreateOrganization(ctx, org)
 	return err
 }
 
 func (svc OrganizationService) GetOrganizations(ctx context.Context) ([]entities.Organization, error) {
 	orgs, err := svc.repo.GetOrganizations(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for i, org := range orgs {
+		orgs[i].ContentUrl = "http://parcus.shop/admin" + org.OrgImage.Path
+	}
 	return orgs, err
 }
 
@@ -42,5 +46,6 @@ func (svc OrganizationService) GetOrganization(ctx context.Context, organization
 	if err != nil {
 		return entities.Organization{}, err
 	}
+	org.ContentUrl = "http://parcus.shop/admin" + org.OrgImage.Path
 	return org, nil
 }

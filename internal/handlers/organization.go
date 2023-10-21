@@ -18,8 +18,38 @@ type OrganizationService interface {
 }
 
 func (handlers Handlers) createOrganization(context *gin.Context) {
+
 	organization := entities.NewOrganization()
-	err := context.ShouldBindJSON(&organization)
+	image := entities.NewImageID(organization.ID)
+
+	file, err := context.FormFile("file")
+	if err != nil {
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Errorf("receiving file failed: %w", err).Error(),
+			})
+
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Error("receiving file failed")
+			return
+		}
+	}
+	file.Filename = image.ID
+	err = context.SaveUploadedFile(file, "./store/organization/"+image.ID+".jpg")
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Errorf("save upload file failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("save upload file failed")
+		return
+	}
+
+	organization.OrgImage = image
+	err = context.ShouldBind(&organization)
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": fmt.Errorf("should bind json failed: %w", err).Error(),
@@ -78,7 +108,6 @@ func (handlers Handlers) getOrganizations(context *gin.Context) {
 
 func (handlers Handlers) deleteOrganization(context *gin.Context) {
 	id := context.Param("id")
-	fmt.Println(id)
 	err := handlers.svc.DeleteOrganization(context, id)
 	if err != nil {
 		if errors.Is(err, entities.ErrOrganizationnDoesNotExist) {
