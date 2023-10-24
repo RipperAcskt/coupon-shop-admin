@@ -83,6 +83,7 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 	}
 
 	admin.GET("/store/:id", handlers.getContent)
+	admin.GET("/store/organization/:id", handlers.getContent)
 	return router, nil
 }
 
