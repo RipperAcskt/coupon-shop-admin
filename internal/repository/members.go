@@ -13,8 +13,8 @@ func (r Repo) AddMembers(ctx context.Context, members []entities.Member) error {
 	var errResponse error
 	defer cancel()
 	for i := range members {
-		_, err := r.db.ExecContext(queryContext, "INSERT INTO members VALUES ($1, $2, $3, $4, $5)",
-			members[i].ID, members[i].Email, members[i].FirstName, members[i].SecondName, members[i].OrganizationID)
+		_, err := r.db.ExecContext(queryContext, "INSERT INTO members VALUES ($1, $2, $3, $4, $5, $6)",
+			members[i].ID, members[i].Email, members[i].FirstName, members[i].SecondName, members[i].OrganizationID, members[i].Role)
 		if err != nil {
 			if strings.Contains(err.Error(), "duplicate key") {
 				if errResponse == nil {

@@ -14,6 +14,7 @@ type OrganizationRepoInterface interface {
 	GetOrganizations(ctx context.Context) ([]entities.Organization, error)
 	DeleteOrganization(ctx context.Context, id string) error
 	GetOrganization(ctx context.Context, organizationID string) (entities.Organization, error)
+	UpdateOrganization(ctx context.Context, org entities.Organization) error
 }
 
 func NewOrganizationService(repo OrganizationRepoInterface) OrganizationService {
@@ -48,4 +49,8 @@ func (svc OrganizationService) GetOrganization(ctx context.Context, organization
 	}
 	org.ContentUrl = "http://parcus.shop/admin" + org.OrgImage.Path
 	return org, nil
+}
+func (svc OrganizationService) UpdateOrganization(ctx context.Context, org entities.Organization) error {
+	err := svc.repo.UpdateOrganization(ctx, org)
+	return err
 }

@@ -21,6 +21,9 @@ func NewMembersService(repo MembersRepoInterface) MembersService {
 
 func (svc MembersService) AddMembers(ctx context.Context, members []entities.Member, organizationID string) error {
 	for i := range members {
+		if members[i].Role != entities.User && members[i].Role != entities.Owner && members[i].Role != entities.Editor {
+			members[i].Role = entities.User
+		}
 		members[i].ID = uuid.NewString()
 		members[i].OrganizationID = organizationID
 

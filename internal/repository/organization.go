@@ -9,6 +9,16 @@ import (
 	"time"
 )
 
+type transerOrganization struct {
+	Name              *string
+	EmailAdmin        *string
+	LevelSubscription *int
+	ORGN              *string
+	KPP               *string
+	INN               *string
+	Address           *string
+}
+
 func (r Repo) CreateOrganization(ctx context.Context, org entities.Organization) error {
 	queryContext, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
@@ -124,7 +134,7 @@ func (r Repo) GetOrganization(ctx context.Context, organizationID string) (entit
 	members := make([]entities.Member, 0)
 	for rows.Next() {
 		member := entities.Member{}
-		err := rows.Scan(&member.ID, &member.Email, &member.FirstName, &member.SecondName, &member.OrganizationID)
+		err := rows.Scan(&member.ID, &member.Email, &member.FirstName, &member.SecondName, &member.OrganizationID, &member.Role)
 		if err != nil {
 			return org, fmt.Errorf("rows scan failed: %w", err)
 		}
@@ -163,4 +173,62 @@ func (r Repo) getMyImage(ctx context.Context, id string) (entities.Image, error)
 	}
 
 	return media, nil
+}
+
+func (r Repo) UpdateOrganization(ctx context.Context, org entities.Organization, organizationID string) error {
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var transfer transerOrganization
+	if org.Name != "" {
+		transfer.Name = &org.Name
+	}
+	if org.EmailAdmin != "" {
+		transfer.EmailAdmin = &org.EmailAdmin
+	}
+	if org.LevelSubscription != 0 {
+		transfer.LevelSubscription = &org.LevelSubscription
+	}
+	if org.INN != "" {
+		transfer.INN = &org.INN
+	}
+	if org.ORGN != "" {
+		transfer.ORGN = &org.ORGN
+	}
+	if org.KPP != "" {
+		transfer.KPP = &org.KPP
+	}
+	if org.ORGN != "" {
+		transfer.Address = &org.Address
+	}
+	res, err := r.db.ExecContext(queryCtx, "UPDATE organization SET name = COALESCE($1, name), email_admin = COALESCE($2, email_admin), level_subscription = COALESCE($3, level_subscription), orgn = COALESCE($4, orgn) , kpp = COALESCE($5, kpp), inn = COALESCE($6, inn), address = COALESCE($7, address) WHERE id = $8",
+		transfer.Name, transfer.EmailAdmin, transfer.LevelSubscription, transfer.ORGN, transfer.KPP, transfer.INN, transfer.Address, organizationID)
+	if err != nil {
+		return fmt.Errorf("exec context failed: %w", err)
+	}
+
+	num, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected failed: %w", err)
+	}
+	if num == 0 {
+		return entities.ErrOrganizationnDoesNotExist
+	}
+
+	if org.OrgImage.Path != "" {
+		res, err := r.db.ExecContext(queryCtx, "UPDATE images SET path = COALESCE($1, path) WHERE organization_id = $2",
+			org.OrgImage.Path, organizationID)
+		if err != nil {
+			return fmt.Errorf("exec context media failed: %w", err)
+		}
+
+		num, err := res.RowsAffected()
+		if err != nil {
+			return fmt.Errorf("rows affected media failed: %w", err)
+		}
+		if num == 0 {
+			return entities.ErrOrganizationnDoesNotExist
+		}
+	}
+	return nil
 }

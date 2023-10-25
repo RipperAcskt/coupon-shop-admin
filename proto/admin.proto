@@ -64,4 +64,6 @@ service AdminService  {
   rpc GetSubsGRPC(Empty) returns (SubscriptionsResponse){};
   rpc GetCouponsGRPC(Empty) returns (GetCouponsResponse){};
   rpc GetOrganizationInfo(InfoOrganizationRequest) returns (InfoOrganizationResponse){};
+
 }
+

@@ -18,4 +18,11 @@ type Member struct {
 	FirstName      string `json:"name"`
 	SecondName     string `json:"secondName"`
 	OrganizationID string `json:"organizationID"`
+	Role           Role   `json:"role"`
 }
+
+type Role string
+
+var Editor Role = "admin"
+var Owner Role = "owner"
+var User Role = "user"
