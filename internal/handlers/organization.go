@@ -15,7 +15,7 @@ type OrganizationService interface {
 	GetOrganizations(ctx context.Context) ([]entities.Organization, error)
 	GetOrganization(ctx context.Context, organizationID string) (entities.Organization, error)
 	DeleteOrganization(ctx context.Context, id string) error
-	UpdateOrganization(ctx context.Context, org entities.Organization) error
+	UpdateOrganization(ctx context.Context, org entities.Organization, organizationID string) error
 }
 
 func (handlers Handlers) createOrganization(context *gin.Context) {
@@ -156,6 +156,7 @@ func (handlers Handlers) getOrganization(context *gin.Context) {
 }
 
 func (handlers Handlers) updateOrganization(context *gin.Context) {
+	id := context.Param("id")
 
 	organization := entities.NewOrganization()
 	image := entities.NewImageID(organization.ID)
@@ -199,7 +200,7 @@ func (handlers Handlers) updateOrganization(context *gin.Context) {
 		return
 	}
 
-	err = handlers.svc.UpdateOrganization(context, organization)
+	err = handlers.svc.UpdateOrganization(context, organization, id)
 	if err != nil {
 		if errors.Is(err, entities.ErrOrganizationAlreadyExists) {
 			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

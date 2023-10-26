@@ -79,9 +79,14 @@ func (s Server) GetOrganizationInfo(ctx context.Context, in *adminpb.InfoOrganiz
 		ID:                orgInfo.ID,
 		Name:              orgInfo.Name,
 		EmailAdmin:        orgInfo.EmailAdmin,
+		Orgn:              orgInfo.ORGN,
+		Kpp:               orgInfo.KPP,
+		Inn:               orgInfo.INN,
 		LevelSubscription: int32(orgInfo.LevelSubscription),
+		Address:           orgInfo.Address,
 		Members:           make([]*adminpb.MemberInfo, len(orgInfo.Members)),
 	}
+	fmt.Printf("%+v", Response)
 	for i, v := range orgInfo.Members {
 		Response.Members[i] = &adminpb.MemberInfo{
 			Id:         v.ID,
@@ -89,8 +94,28 @@ func (s Server) GetOrganizationInfo(ctx context.Context, in *adminpb.InfoOrganiz
 			FirstName:  v.FirstName,
 			SecondName: v.SecondName,
 			OrgID:      v.OrganizationID,
+			Role:       string(v.Role),
 		}
 	}
 
 	return Response, nil
+}
+
+func (s Server) UpdateOrganizationInfo(ctx context.Context, in *adminpb.UpdateOrganizationRequest) (*adminpb.UpdateOrganizationResponse, error) {
+	if entities.Role(in.GetRoleUser()) != entities.Owner && entities.Role(in.GetRoleUser()) != entities.Editor {
+		return &adminpb.UpdateOrganizationResponse{Message: "Action not allowed for default users"}, fmt.Errorf("action now allowed")
+	}
+	err := s.OrganizationService.UpdateOrganization(ctx, entities.Organization{
+		Name:              in.GetName(),
+		EmailAdmin:        in.EmailAdmin,
+		LevelSubscription: int(in.LevelSubscription),
+		ORGN:              in.GetOrgn(),
+		KPP:               in.GetKpp(),
+		INN:               in.GetInn(),
+		Address:           in.GetAddress(),
+	}, in.GetID())
+	if err != nil {
+		return nil, err
+	}
+	return &adminpb.UpdateOrganizationResponse{Message: "organization successfully updated"}, nil
 }

@@ -11,8 +11,9 @@ type MembersService struct {
 }
 
 type MembersRepoInterface interface {
-	AddMembers(ctx context.Context, members []entities.Member) error //GetMembers(ctx context.Context, organizationID string) ([]entities.Member, error)
+	AddMembers(ctx context.Context, members []entities.Member) error
 	DeleteMembers(ctx context.Context, membersToDelete []entities.Member, organizationID string) error
+	UpdateMembers(ctx context.Context, members []entities.Member, organizationID string) error
 }
 
 func NewMembersService(repo MembersRepoInterface) MembersService {
@@ -39,5 +40,15 @@ func (svc MembersService) DeleteMembers(ctx context.Context, members []entities.
 
 	}
 	err := svc.repo.DeleteMembers(ctx, members, organizationID)
+	return err
+}
+
+func (svc MembersService) UpdateMembers(ctx context.Context, members []entities.Member, organizationID string) error {
+	for i := range members {
+		if members[i].Role != entities.User && members[i].Role != entities.Owner && members[i].Role != entities.Editor {
+			members[i].Role = ""
+		}
+	}
+	err := svc.repo.UpdateMembers(ctx, members, organizationID)
 	return err
 }

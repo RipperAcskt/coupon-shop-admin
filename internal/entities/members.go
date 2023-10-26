@@ -16,13 +16,13 @@ type Member struct {
 	ID             string `json:"id"`
 	Email          string `json:"email"`
 	FirstName      string `json:"name"`
-	SecondName     string `json:"secondName"`
-	OrganizationID string `json:"organizationID"`
+	SecondName     string `json:"second_name"`
+	OrganizationID string `json:"organization_ID"`
 	Role           Role   `json:"role"`
 }
 
 type Role string
 
-var Editor Role = "admin"
+var Editor Role = "editor"
 var Owner Role = "owner"
 var User Role = "user"

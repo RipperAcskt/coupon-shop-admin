@@ -43,14 +43,16 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 		organization.GET("", handlers.getOrganizations)
 		organization.GET("/:id", handlers.getOrganization)
 		organization.DELETE("/:id", handlers.deleteOrganization)
+		organization.PUT("/:id", handlers.updateOrganization)
+
 	}
 	members := organization.Group("/members")
 	{
 		members.Use(handlers.VerifyToken())
 
 		members.POST("/:id", handlers.addMembers)
-		//members.GET("/", handlers.ge)
 		members.DELETE("/:id", handlers.deleteMembers)
+		members.PUT("/:id", handlers.updateMembers)
 
 	}
 	subscription := admin.Group("/subscription")
