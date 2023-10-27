@@ -55,7 +55,7 @@ func (handlers Handlers) SingIn(c *gin.Context) {
 	}
 
 	exp := int((time.Duration(handlers.cfg.RefreshTokenExp) * time.Hour * 24).Seconds())
-	c.SetCookie("refresh_token", token.RT, exp, "/auth", "", false, true)
+	c.SetCookie("refresh_token", token.RT, exp, "/admin/auth", "parcus.shop", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"access_token": token.Access,
 	})
@@ -177,7 +177,7 @@ func (handlers Handlers) Refresh(c *gin.Context) {
 	}
 
 	exp := int((time.Duration(handlers.cfg.RefreshTokenExp) * time.Hour * 24).Seconds())
-	c.SetCookie("refresh_token", token.RT, exp, "/auth", "", false, true)
+	c.SetCookie("refresh_token", token.RT, exp, "/admin/auth", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"access_token": token.Access,
 	})
@@ -204,6 +204,6 @@ func (handlers Handlers) Logout(c *gin.Context) {
 		})
 		return
 	}
-	c.SetCookie("refresh_token", "", time.Now().Second(), "/auth", "", false, true)
+	c.SetCookie("refresh_token", "", time.Now().Second(), "/admin/auth", "", false, true)
 	c.Status(http.StatusOK)
 }
