@@ -12,6 +12,7 @@ type Server struct {
 	service.CouponService
 	service.SubscriptionService
 	service.OrganizationService
+	service.MembersService
 	adminpb.UnimplementedAdminServiceServer
 }
 
@@ -102,9 +103,12 @@ func (s Server) GetOrganizationInfo(ctx context.Context, in *adminpb.InfoOrganiz
 }
 
 func (s Server) UpdateOrganizationInfo(ctx context.Context, in *adminpb.UpdateOrganizationRequest) (*adminpb.UpdateOrganizationResponse, error) {
+	fmt.Println("entered GRPC")
+	fmt.Println(*in)
 	if entities.Role(in.GetRoleUser()) != entities.Owner && entities.Role(in.GetRoleUser()) != entities.Editor {
-		return &adminpb.UpdateOrganizationResponse{Message: "Action not allowed for default users"}, fmt.Errorf("action now allowed")
+		return &adminpb.UpdateOrganizationResponse{Message: "Action not allowed for default users"}, nil
 	}
+	fmt.Println("from if not returns")
 	err := s.OrganizationService.UpdateOrganization(ctx, entities.Organization{
 		Name:              in.GetName(),
 		EmailAdmin:        in.EmailAdmin,
@@ -114,8 +118,34 @@ func (s Server) UpdateOrganizationInfo(ctx context.Context, in *adminpb.UpdateOr
 		INN:               in.GetInn(),
 		Address:           in.GetAddress(),
 	}, in.GetID())
+	fmt.Println("err", err)
 	if err != nil {
 		return nil, err
 	}
 	return &adminpb.UpdateOrganizationResponse{Message: "organization successfully updated"}, nil
+}
+
+func (s Server) UpdateMembersInfo(ctx context.Context, in *adminpb.UpdateMembersRequest) (*adminpb.UpdateMembersResponse, error) {
+	fmt.Println("entered gRPC")
+	if entities.Role(in.GetRoleUser()) != entities.Owner && entities.Role(in.GetRoleUser()) != entities.Editor {
+		return &adminpb.UpdateMembersResponse{Message: "Action not allowed for default users"}, nil
+	}
+	members := make([]entities.Member, 0)
+	fmt.Println("Members : ", in.Members)
+	for i := range in.Members {
+		var member entities.Member
+		member.Email = in.Members[i].Email
+		member.FirstName = in.Members[i].FirstName
+		member.SecondName = in.Members[i].SecondName
+		member.Role = entities.Role(in.Members[i].Role)
+		members = append(members, member)
+	}
+	fmt.Println("members mapped : ", members)
+	fmt.Println("orgID", in.GetOrganizationID())
+	err := s.MembersService.UpdateMembers(ctx, members, in.GetOrganizationID())
+	fmt.Println("err", err)
+	if err != nil {
+		return nil, err
+	}
+	return &adminpb.UpdateMembersResponse{Message: "members successfully updated"}, nil
 }
