@@ -24,6 +24,7 @@ type Service interface {
 	CouponService
 	AuthService
 	RegionService
+	CategoryService
 }
 
 func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error) {

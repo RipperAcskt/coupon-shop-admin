@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS subcategories (
 );
 
 CREATE TABLE IF NOT EXISTS categories_coupons (
-    id_category VARCHAR NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
-    id_subcategory VARCHAR NOT NULL REFERENCES subcategories(id) ON DELETE CASCADE,
+    id_category VARCHAR REFERENCES categories(id) ON DELETE CASCADE,
+    id_subcategory VARCHAR REFERENCES subcategories(id) ON DELETE CASCADE,
     id_coupon VARCHAR PRIMARY KEY REFERENCES coupons(id) ON DELETE CASCADE
 );

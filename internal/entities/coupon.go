@@ -22,6 +22,8 @@ type Coupon struct {
 	ContentUrl  string `json:"content_url"`
 	Media       Media  `json:"-"`
 	Region      string `form:"region" json:"region"`
+	Category    string `form:"category" json:"category"`
+	Subcategory string `form:"subcategory" json:"subcategory"`
 }
 
 type Media struct {
