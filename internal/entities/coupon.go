@@ -21,6 +21,7 @@ type Coupon struct {
 	Percent     int    `form:"percent" json:"percent"`
 	ContentUrl  string `json:"content_url"`
 	Media       Media  `json:"-"`
+	Region      string `form:"region" json:"region"`
 }
 
 type Media struct {

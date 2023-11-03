@@ -1,2 +1,2 @@
 ALTER TABLE members
-DROP COLUMN role,
+DROP COLUMN role;

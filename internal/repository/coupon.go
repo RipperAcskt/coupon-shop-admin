@@ -23,9 +23,20 @@ func (r Repo) CreateCoupon(ctx context.Context, coupon entities.Coupon) error {
 	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	row := r.db.QueryRowContext(queryCtx, "INSERT INTO coupons VALUES($1, $2, $3, $4, $5, $6)", coupon.ID, coupon.Name, coupon.Description, coupon.Price, coupon.Percent, coupon.Level)
+	row := r.db.QueryRowContext(queryCtx, "SELECT id FROM regions WHERE name = $1", coupon.Region)
 	if row.Err() != nil {
-		return fmt.Errorf("query row context order failed: %w", row.Err())
+		return fmt.Errorf("query row context region failed: %w", row.Err())
+	}
+
+	var id string
+	err := row.Scan(&id)
+	if err != nil {
+		return fmt.Errorf("scan failed: %w", err)
+	}
+
+	row = r.db.QueryRowContext(queryCtx, "INSERT INTO coupons VALUES($1, $2, $3, $4, $5, $6, $7)", coupon.ID, coupon.Name, coupon.Description, coupon.Price, coupon.Percent, coupon.Level, id)
+	if row.Err() != nil {
+		return fmt.Errorf("query row context coupon failed: %w", row.Err())
 	}
 
 	row = r.db.QueryRowContext(queryCtx, "INSERT INTO media VALUES($1, $2, $3)", coupon.Media.ID, coupon.ID, coupon.Media.Path)
@@ -40,7 +51,7 @@ func (r Repo) GetCoupons(ctx context.Context) ([]entities.Coupon, error) {
 	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	rows, err := r.db.QueryContext(queryCtx, "SELECT * FROM coupons")
+	rows, err := r.db.QueryContext(queryCtx, "SELECT coupons.id, coupons.name, coupons.description, coupons.price, coupons.percent, coupons.level, regions.name FROM coupons JOIN regions ON coupons.region = regions.id")
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, entities.ErrNoAnyCoupons
@@ -53,7 +64,42 @@ func (r Repo) GetCoupons(ctx context.Context) ([]entities.Coupon, error) {
 
 	for rows.Next() {
 		coupon := entities.NewCoupon()
-		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level)
+		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region)
+		if err != nil {
+			return nil, fmt.Errorf("scan failed: %w", err)
+		}
+
+		media, err := r.getMyMedia(ctx, coupon.ID)
+		if err != nil {
+			return nil, fmt.Errorf("get media failed: %w", err)
+		}
+
+		coupon.Media = media
+
+		coupons = append(coupons, coupon)
+	}
+
+	return coupons, nil
+}
+
+func (r Repo) GetCouponsByRegion(ctx context.Context, region string) ([]entities.Coupon, error) {
+	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	rows, err := r.db.QueryContext(queryCtx, "SELECT coupons.id, coupons.name, coupons.description, coupons.price, coupons.percent, coupons.level, regions.name FROM coupons JOIN regions ON coupons.region = regions.id WHERE regions.name = $1", region)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, entities.ErrNoAnyCoupons
+		}
+		return nil, fmt.Errorf("query context failed: %w", err)
+	}
+	defer rows.Close()
+
+	coupons := make([]entities.Coupon, 0)
+
+	for rows.Next() {
+		coupon := entities.NewCoupon()
+		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region)
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
@@ -75,7 +121,7 @@ func (r Repo) GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
 	queryContext, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 
-	row := r.db.QueryRowContext(queryContext, "SELECT * FROM coupons WHERE id = $1", id)
+	row := r.db.QueryRowContext(queryContext, "SELECT coupons.id, coupons.name, coupons.description, coupons.price, coupons.percent, coupons.level, regions.name FROM coupons JOIN regions ON coupons.region = regions.id WHERE coupons.id = $1", id)
 	if row.Err() != nil {
 		if errors.Is(row.Err(), sql.ErrNoRows) {
 			return entities.NewCoupon(), entities.ErrSubscriptionDoesNotExist
@@ -84,7 +130,7 @@ func (r Repo) GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
 	}
 
 	coupon := entities.NewCoupon()
-	err := row.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level)
+	err := row.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entities.NewCoupon(), entities.ErrCouponDoesNotExist

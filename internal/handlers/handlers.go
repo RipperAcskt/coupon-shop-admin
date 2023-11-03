@@ -23,6 +23,7 @@ type Service interface {
 	SubscriptionService
 	CouponService
 	AuthService
+	RegionService
 }
 
 func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error) {
@@ -73,6 +74,7 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 		coupon.POST("", handlers.createCoupon)
 		coupon.GET("", handlers.getCoupons)
 		coupon.GET("/:id", handlers.getCoupon)
+		coupon.GET("filter/:region", handlers.getCouponsByRegion)
 		coupon.PUT("/:id", handlers.updateCoupon)
 		coupon.DELETE("/:id", handlers.deleteCoupon)
 	}
@@ -82,6 +84,16 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 		auth.POST("/sing-in", handlers.SingIn)
 		auth.GET("/refresh", handlers.Refresh)
 		auth.GET("/logout", handlers.Logout)
+	}
+
+	region := admin.Group("/region")
+	{
+		region.Use(handlers.VerifyToken())
+
+		region.POST("", handlers.createRegion)
+		region.GET("", handlers.getRegions)
+		region.PUT("/:id", handlers.updateRegion)
+		region.DELETE("/:id", handlers.deleteRegion)
 	}
 
 	admin.GET("/store/:id", handlers.getContent)

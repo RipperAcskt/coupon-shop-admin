@@ -15,6 +15,7 @@ type CouponService interface {
 	CreateCoupon(ctx context.Context, coupon entities.Coupon) error
 	GetCoupons(ctx context.Context) ([]entities.Coupon, error)
 	GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
+	GetCouponsByRegion(ctx context.Context, region string) ([]entities.Coupon, error)
 	UpdateCoupon(ctx context.Context, id string, coupon entities.Coupon) error
 	DeleteCoupon(ctx context.Context, id string) error
 }
@@ -104,6 +105,30 @@ func (handlers Handlers) getCoupons(context *gin.Context) {
 		logrus.WithFields(logrus.Fields{
 			"error": err,
 		}).Error("get coupons failed")
+		return
+	}
+
+	context.JSON(http.StatusOK, coupons)
+}
+
+func (handlers Handlers) getCouponsByRegion(context *gin.Context) {
+	region := context.Param("region")
+	coupons, err := handlers.svc.GetCouponsByRegion(context, region)
+	if err != nil {
+		if errors.Is(err, entities.ErrSubscriptionAlreadyExists) {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("get coupons by region failed: %w", err).Error(),
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("get coupons by region failed")
 		return
 	}
 
@@ -210,7 +235,7 @@ func (handlers Handlers) deleteCoupon(context *gin.Context) {
 		}
 
 		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Errorf("delete subscription failed: %w", err).Error(),
+			"error": fmt.Errorf("delete coupon failed: %w", err).Error(),
 		})
 
 		logrus.WithFields(logrus.Fields{

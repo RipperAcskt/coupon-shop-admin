@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS categories (
+    id VARCHAR PRIMARY KEY,
+    name VARCHAR NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS subcategories (
+    id VARCHAR PRIMARY KEY,
+    name VARCHAR NOT NULL UNIQUE,
+    category_id VARCHAR NOT NULL REFERENCES categories(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS categories_coupons (
+    id_category VARCHAR NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+    id_subcategory VARCHAR NOT NULL REFERENCES subcategories(id) ON DELETE CASCADE,
+    id_coupon VARCHAR PRIMARY KEY REFERENCES coupons(id) ON DELETE CASCADE
+);
