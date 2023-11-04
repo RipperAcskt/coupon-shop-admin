@@ -79,7 +79,7 @@ func (r Repo) UpdateSubcategory(ctx context.Context, id, name string) error {
 	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	res, err := r.db.ExecContext(queryCtx, "UPDATE subcategories SET name = $1 WHERE id = $2", id, name)
+	res, err := r.db.ExecContext(queryCtx, "UPDATE subcategories SET name = $1 WHERE id = $2", name, id)
 	if err != nil {
 		return fmt.Errorf("exec context failed: %w", err)
 	}
