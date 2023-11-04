@@ -35,6 +35,8 @@ message Coupon{
   string contentUrl = 8;
   Media media = 9;
   string region = 10;
+  string category = 11;
+  string subcategory = 12;
 }
 
 message GetCouponsResponse {

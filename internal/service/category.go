@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/RipperAcskt/coupon-shop-admin/internal/entities"
 )
@@ -29,7 +30,8 @@ func NewCategoryService(repo CategoryRepoInterface) CategoryService {
 }
 
 func (svc CategoryService) CreateCategory(ctx context.Context, category entities.Category) error {
-	if category.Subcategory {
+	category.Id = uuid.NewString()
+	if category.Subcategory != "" {
 		err := svc.repo.CreateSubcategory(ctx, category)
 		return err
 	}

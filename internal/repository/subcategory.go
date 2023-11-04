@@ -14,16 +14,15 @@ func (r Repo) CreateSubcategory(ctx context.Context, category entities.Category)
 	defer cancel()
 
 	var id string
-	err := r.db.QueryRowContext(queryContext, "SELECT id FROM subcategories WHERE name = $1", category.Name).Scan(&id)
-	if err == nil {
-		return entities.ErrCategoryAlreadyExists
+	err := r.db.QueryRowContext(queryContext, "SELECT id FROM categories WHERE name = $1", category.Name).Scan(&id)
+	if err != nil {
+		return fmt.Errorf("query row context failed: %w", err)
 	}
 
-	_, err = r.db.ExecContext(queryContext, "INSERT INTO subcategories VALUES ($1, $2)", category.Id, category.Name)
+	_, err = r.db.ExecContext(queryContext, "INSERT INTO subcategories VALUES ($1, $2, $3)", category.Id, category.Subcategory, id)
 	if err != nil {
 		return fmt.Errorf("exec context failed: %w", err)
 	}
-
 	return nil
 }
 

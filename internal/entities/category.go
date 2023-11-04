@@ -11,5 +11,5 @@ var (
 type Category struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`
-	Subcategory bool   `json:"subcategory"`
+	Subcategory string `json:"subcategory"`
 }

@@ -65,6 +65,8 @@ func (s Server) GetCouponsGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb
 			ContentUrl:  v.ContentUrl,
 			Media:       media,
 			Region:      v.Region,
+			Category:    v.Category,
+			Subcategory: *v.Subcategory,
 		}
 
 		Response.Coupons[i] = coupon
@@ -94,6 +96,49 @@ func (s Server) GetCouponsByRegionGRPC(ctx context.Context, region *adminpb.Regi
 			ContentUrl:  v.ContentUrl,
 			Media:       media,
 			Region:      v.Region,
+			Category:    v.Category,
+			Subcategory: *v.Subcategory,
+		}
+
+		Response.Coupons[i] = coupon
+	}
+	return Response, nil
+}
+
+func (s Server) GetCouponsByCategoryGRPC(ctx context.Context, category *adminpb.Category) (*adminpb.GetCouponsResponse, error) {
+	var coupons []entities.Coupon
+	var err error
+	if category.Subcategory {
+		coupons, err = s.CouponService.GetCouponsBySubcategory(ctx, category.Name)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		coupons, err = s.CouponService.GetCouponsByCategory(ctx, category.Name)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var Response = &adminpb.GetCouponsResponse{Coupons: make([]*adminpb.Coupon, len(coupons))}
+	for i, v := range coupons {
+		var media = &adminpb.Media{
+			ID:   v.Media.ID,
+			Path: v.Media.Path,
+		}
+
+		var coupon = &adminpb.Coupon{
+			ID:          v.ID,
+			Name:        v.Name,
+			Description: v.Description,
+			Price:       int32(v.Price),
+			Level:       int32(v.Level),
+			Percent:     int32(v.Percent),
+			ContentUrl:  v.ContentUrl,
+			Media:       media,
+			Region:      v.Region,
+			Category:    v.Category,
+			Subcategory: *v.Subcategory,
 		}
 
 		Response.Coupons[i] = coupon

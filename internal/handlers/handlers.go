@@ -97,6 +97,17 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 		region.DELETE("/:id", handlers.deleteRegion)
 	}
 
+	category := admin.Group("/category")
+	{
+		category.Use(handlers.VerifyToken())
+
+		category.POST("", handlers.createCategory)
+		category.GET("", handlers.getCategories)
+		category.GET("/id", handlers.getCategory)
+		category.PUT("/:id", handlers.updateCategory)
+		category.DELETE("/:id", handlers.deleteCategory)
+	}
+
 	admin.GET("/store/:id", handlers.getContent)
 	admin.GET("/store/organization/:id", handlers.getContent)
 	return router, nil

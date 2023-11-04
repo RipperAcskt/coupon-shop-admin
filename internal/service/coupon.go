@@ -20,6 +20,8 @@ type CouponRepoInterface interface {
 	UpdateCoupon(ctx context.Context, id string, coupon entities.Coupon) error
 	DeleteCoupon(ctx context.Context, id string) error
 	GetCouponsByRegion(ctx context.Context, region string) ([]entities.Coupon, error)
+	GetCouponsByCategory(ctx context.Context, category string) ([]entities.Coupon, error)
+	GetCouponsBySubcategory(ctx context.Context, category string) ([]entities.Coupon, error)
 }
 
 func NewCouponService(repo CouponRepoInterface, cfg config.Config) CouponService {
@@ -48,6 +50,30 @@ func (svc CouponService) GetCoupons(ctx context.Context) ([]entities.Coupon, err
 
 func (svc CouponService) GetCouponsByRegion(ctx context.Context, region string) ([]entities.Coupon, error) {
 	coupons, err := svc.repo.GetCouponsByRegion(ctx, region)
+	if err != nil {
+		return nil, fmt.Errorf("get coupons by region failed: %w", err)
+	}
+
+	for i, coupon := range coupons {
+		coupons[i].ContentUrl = "http://parcus.shop/admin" + coupon.Media.Path
+	}
+	return coupons, err
+}
+
+func (svc CouponService) GetCouponsByCategory(ctx context.Context, category string) ([]entities.Coupon, error) {
+	coupons, err := svc.repo.GetCouponsByCategory(ctx, category)
+	if err != nil {
+		return nil, fmt.Errorf("get coupons by region failed: %w", err)
+	}
+
+	for i, coupon := range coupons {
+		coupons[i].ContentUrl = "http://parcus.shop/admin" + coupon.Media.Path
+	}
+	return coupons, err
+}
+
+func (svc CouponService) GetCouponsBySubcategory(ctx context.Context, category string) ([]entities.Coupon, error) {
+	coupons, err := svc.repo.GetCouponsBySubcategory(ctx, category)
 	if err != nil {
 		return nil, fmt.Errorf("get coupons by region failed: %w", err)
 	}
