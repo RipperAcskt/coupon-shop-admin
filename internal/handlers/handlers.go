@@ -25,6 +25,7 @@ type Service interface {
 	AuthService
 	RegionService
 	CategoryService
+	LinkService
 }
 
 func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error) {
@@ -103,9 +104,20 @@ func SetRequestHandlers(service Service, cfg config.Config) (*gin.Engine, error)
 
 		category.POST("", handlers.createCategory)
 		category.GET("", handlers.getCategories)
-		category.GET("/id", handlers.getCategory)
+		category.GET("/:id", handlers.getCategory)
 		category.PUT("/:id", handlers.updateCategory)
 		category.DELETE("/:id", handlers.deleteCategory)
+	}
+
+	link := admin.Group("/link")
+	{
+		link.Use(handlers.VerifyToken())
+
+		link.POST("", handlers.createLink)
+		link.GET("", handlers.getLinks)
+		link.GET("/:region", handlers.getLink)
+		link.PUT("/:id", handlers.updateLink)
+		link.DELETE("/:id", handlers.deleteLink)
 	}
 
 	admin.GET("/store/:id", handlers.getContent)
