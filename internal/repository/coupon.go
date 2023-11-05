@@ -55,22 +55,24 @@ func (r Repo) CreateCoupon(ctx context.Context, coupon entities.Coupon) error {
 		return fmt.Errorf("scan failed: %w", err)
 	}
 
-	if *coupon.Subcategory != "" {
-		row = r.db.QueryRowContext(queryCtx, "SELECT id FROM subcategories WHERE name = $1", coupon.Subcategory)
-		if row.Err() != nil {
-			return fmt.Errorf("query row context region failed: %w", row.Err())
-		}
-		err = row.Scan(&idSubcategory)
-		if err != nil {
-			return fmt.Errorf("scan failed: %w", err)
-		}
+	if coupon.Subcategory != nil {
+		if *coupon.Subcategory != "" {
+			row = r.db.QueryRowContext(queryCtx, "SELECT id FROM subcategories WHERE name = $1", coupon.Subcategory)
+			if row.Err() != nil {
+				return fmt.Errorf("query row context region failed: %w", row.Err())
+			}
+			err = row.Scan(&idSubcategory)
+			if err != nil {
+				return fmt.Errorf("scan failed: %w", err)
+			}
 
-		row = r.db.QueryRowContext(queryCtx, "INSERT INTO categories_coupons VALUES($1, $2, $3)", idCategory, idSubcategory, coupon.ID)
-		if row.Err() != nil {
-			return fmt.Errorf("query row context failed: %w", row.Err())
-		}
+			row = r.db.QueryRowContext(queryCtx, "INSERT INTO categories_coupons VALUES($1, $2, $3)", idCategory, idSubcategory, coupon.ID)
+			if row.Err() != nil {
+				return fmt.Errorf("query row context failed: %w", row.Err())
+			}
 
-		return nil
+			return nil
+		}
 	}
 
 	row = r.db.QueryRowContext(queryCtx, "INSERT INTO categories_coupons (id_category, id_coupon) VALUES($1, $2)", idCategory, coupon.ID)
