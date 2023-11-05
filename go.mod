@@ -4,6 +4,7 @@ go 1.21.1
 
 require (
 	github.com/caarlos0/env/v9 v9.0.0
+	github.com/elastic/go-elasticsearch/v8 v8.10.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -12,12 +13,15 @@ require (
 	github.com/jackc/pgx/v5 v5.4.3
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
+	google.golang.org/grpc v1.59.0
+	google.golang.org/protobuf v1.31.0
 )
 
 require (
 	github.com/Masterminds/squirrel v1.5.4 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.3.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -51,8 +55,6 @@ require (
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231016165738-49dd2c1f3d0b // indirect
-	google.golang.org/grpc v1.59.0 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

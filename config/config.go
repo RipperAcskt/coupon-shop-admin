@@ -26,6 +26,11 @@ type Config struct {
 	RedisDbHost     string `env:"REDIS_DB_HOST"`
 	RedisDbPassword string `env:"REDIS_DB_PASSWORD"`
 	RedisDbName     int    `env:"REDIS_DB_NAME"`
+
+	ElasticDbHost     string `env:"ELASTIC_DB_HOST"`
+	ElasticDbUsername string `env:"ELASTIC_DB_USERNAME"`
+	ElasticDbPassword string `env:"ELASTIC_DB_PASSWORD"`
+	ElasticDbName     string `env:"ELASTIC_DB_NAME"`
 }
 
 func New() (Config, error) {

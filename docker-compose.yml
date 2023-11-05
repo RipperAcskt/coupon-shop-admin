@@ -48,8 +48,7 @@ services:
       - postgres
       - redis
     ports:
-      - "1450:3000"
-
+      - "3000:3000"
   coupon-shop-front:
     container_name: coupon-shop-front
     image: ripperacskt/coupon-shop-front:latest
