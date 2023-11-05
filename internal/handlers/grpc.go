@@ -98,7 +98,9 @@ func (s Server) GetCouponsByRegionGRPC(ctx context.Context, region *adminpb.Regi
 			Media:       media,
 			Region:      v.Region,
 			Category:    v.Category,
-			Subcategory: *v.Subcategory,
+		}
+		if v.Subcategory != nil {
+			coupon.Subcategory = *v.Subcategory
 		}
 
 		Response.Coupons[i] = coupon
@@ -139,7 +141,9 @@ func (s Server) GetCouponsByCategoryGRPC(ctx context.Context, category *adminpb.
 			Media:       media,
 			Region:      v.Region,
 			Category:    v.Category,
-			Subcategory: *v.Subcategory,
+		}
+		if v.Subcategory != nil {
+			coupon.Subcategory = *v.Subcategory
 		}
 
 		Response.Coupons[i] = coupon
