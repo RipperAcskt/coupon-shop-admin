@@ -13,6 +13,8 @@ type Server struct {
 	service.SubscriptionService
 	service.OrganizationService
 	service.MembersService
+	service.CategoryService
+	service.RegionService
 	adminpb.UnimplementedAdminServiceServer
 }
 
@@ -71,6 +73,50 @@ func (s Server) GetCouponsGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb
 			coupon.Subcategory = *v.Subcategory
 		}
 		Response.Coupons[i] = coupon
+	}
+	return Response, nil
+}
+
+func (s Server) GetCategoriesGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb.GetCategoryResponse, error) {
+	categories, err := s.CategoryService.GetCategories(ctx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	subcategories, err := s.CategoryService.GetCategories(ctx, true)
+	if err != nil {
+		return nil, err
+	}
+
+	var Response = &adminpb.GetCategoryResponse{}
+	for _, cat := range categories {
+		var categoriesResp adminpb.CategoryResponse
+		categoriesResp.ID = cat.Id
+		categoriesResp.Name = cat.Name
+		for _, sub := range subcategories {
+			if sub.Subcategory == cat.Name {
+				categoriesResp.Subcategories = append(categoriesResp.Subcategories, &adminpb.SubcategoryResponse{
+					ID:   sub.Id,
+					Name: sub.Name,
+				})
+			}
+		}
+		Response.Categories = append(Response.Categories, &categoriesResp)
+	}
+	return Response, nil
+}
+
+func (s Server) GetRegionsGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb.RegionResponse, error) {
+	regions, err := s.RegionService.GetRegions(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var Response = &adminpb.RegionResponse{}
+	for _, v := range regions {
+		Response.Regions = append(Response.Regions, &adminpb.Region{
+			Region: v.Name,
+		})
 	}
 	return Response, nil
 }

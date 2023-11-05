@@ -30,7 +30,7 @@ func (r Repo) GetSubcategories(ctx context.Context) ([]entities.Category, error)
 	queryContext, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 
-	rows, err := r.db.QueryContext(queryContext, "SELECT * FROM subcategories")
+	rows, err := r.db.QueryContext(queryContext, "SELECT subcategories.id, subcategories.name, categories.name FROM subcategories JOIN categories ON subcategories.category_id = categories.id")
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, entities.ErrNoAnyCategory
@@ -42,7 +42,7 @@ func (r Repo) GetSubcategories(ctx context.Context) ([]entities.Category, error)
 	categories := make([]entities.Category, 0)
 	for rows.Next() {
 		category := entities.Category{}
-		err := rows.Scan(&category.Id, &category.Name)
+		err := rows.Scan(&category.Id, &category.Name, &category.Subcategory)
 		if err != nil {
 			return nil, fmt.Errorf("rows scan failed: %w", err)
 		}
@@ -56,7 +56,7 @@ func (r Repo) GetSubcategory(ctx context.Context, id string) (entities.Category,
 	queryContext, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 
-	row := r.db.QueryRowContext(queryContext, "SELECT * FROM subcategories WHERE id = $1", id)
+	row := r.db.QueryRowContext(queryContext, "SELECT subcategories.id, subcategories.name, categories.name FROM subcategories JOIN categories ON subcategories.category_id = categories.id WHERE id = $1", id)
 	if row.Err() != nil {
 		if errors.Is(row.Err(), sql.ErrNoRows) {
 			return entities.Category{}, entities.ErrCategoryDoesNotExist
@@ -65,7 +65,7 @@ func (r Repo) GetSubcategory(ctx context.Context, id string) (entities.Category,
 	}
 
 	category := entities.Category{}
-	err := row.Scan(&category.Id, &category.Name)
+	err := row.Scan(&category.Id, &category.Name, &category.Subcategory)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entities.Category{}, entities.ErrCategoryDoesNotExist

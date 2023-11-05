@@ -10,7 +10,7 @@ import (
 	"net"
 )
 
-func StartGrpcServer(ctx context.Context, subService service.SubscriptionService, couponService service.CouponService, organizationService service.OrganizationService, membersService service.MembersService) error {
+func StartGrpcServer(ctx context.Context, subService service.SubscriptionService, couponService service.CouponService, organizationService service.OrganizationService, membersService service.MembersService, categoryService service.CategoryService, region service.RegionService) error {
 	lis, err := net.Listen("tcp", ":8081")
 	if err != nil {
 		log.Fatalln("Failed to listen grpc server: ", err)
@@ -20,12 +20,14 @@ func StartGrpcServer(ctx context.Context, subService service.SubscriptionService
 		CouponService:                   couponService,
 		SubscriptionService:             subService,
 		OrganizationService:             organizationService,
+		CategoryService:                 categoryService,
+		RegionService:                   region,
 		UnimplementedAdminServiceServer: adminpb.UnimplementedAdminServiceServer{},
 	}
 
 	s := grpc.NewServer()
 	adminpb.RegisterAdminServiceServer(s, server)
-	log.Println("serving gRPC on localhost:8080")
+	log.Println("serving gRPC on localhost:8081")
 
 	errCh := make(chan error)
 	go func() {
