@@ -17,6 +17,9 @@ type transferCoupon struct {
 	Description *string
 	Price       *int
 	Percent     *int
+	Region      *string
+	Category    *string
+	Subcategory *string
 }
 
 func (r Repo) CreateCoupon(ctx context.Context, coupon entities.Coupon) error {
@@ -293,14 +296,37 @@ func (r Repo) UpdateCoupon(ctx context.Context, id string, coupon entities.Coupo
 	if coupon.Percent != 0 {
 		transfer.Percent = &coupon.Percent
 	}
+	if coupon.Region != "" {
+		transfer.Region = &coupon.Region
+	}
+	if coupon.Category != "" {
+		transfer.Category = &coupon.Category
+	}
+	if *coupon.Subcategory != "" {
+		transfer.Subcategory = coupon.Subcategory
+	}
 
-	res, err := r.db.ExecContext(queryCtx, "UPDATE coupons SET name = COALESCE($1, name), description = COALESCE($2, description), price = COALESCE($3, price), percent = COALESCE($4, percent) WHERE id = $5",
-		transfer.Name, transfer.Description, transfer.Price, transfer.Percent, id)
+	res, err := r.db.ExecContext(queryCtx, "UPDATE coupons SET name = COALESCE($1, name), description = COALESCE($2, description), price = COALESCE($3, price), percent = COALESCE($4, percent), region = COALESCE($5, region) WHERE id = $6",
+		transfer.Name, transfer.Description, transfer.Price, transfer.Percent, transfer.Region, id)
 	if err != nil {
 		return fmt.Errorf("exec context failed: %w", err)
 	}
 
 	num, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected failed: %w", err)
+	}
+	if num == 0 {
+		return entities.ErrCouponDoesNotExist
+	}
+
+	res, err = r.db.ExecContext(queryCtx, "UPDATE categories_coupons SET id_category = COALESCE($1, id_category), id_subcategory = COALESCE($2, id_subcategory) WHERE id_coupon = $3",
+		transfer.Category, transfer.Subcategory, id)
+	if err != nil {
+		return fmt.Errorf("exec context failed: %w", err)
+	}
+
+	num, err = res.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("rows affected failed: %w", err)
 	}
