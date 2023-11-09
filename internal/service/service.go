@@ -11,6 +11,7 @@ type Service struct {
 	RegionService
 	CategoryService
 	LinkService
+	UserService
 }
 
 type Repo interface {
@@ -21,6 +22,7 @@ type Repo interface {
 	RegionRepoInterface
 	CategoryRepoInterface
 	LinkRepoInterface
+	UserRepoInterface
 }
 
 type Cache interface {
@@ -37,5 +39,6 @@ func New(repo Repo, cache Cache, cfg config.Config) Service {
 		RegionService:       NewRegionService(repo),
 		CategoryService:     NewCategoryService(repo),
 		LinkService:         NewLinkService(repo),
+		UserService:         NewUserService(repo),
 	}
 }

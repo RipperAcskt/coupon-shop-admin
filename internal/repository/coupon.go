@@ -114,7 +114,7 @@ func (r Repo) GetCoupons(ctx context.Context) ([]entities.Coupon, error) {
 
 	for rows.Next() {
 		coupon := entities.NewCoupon()
-		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory)
+		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory, &coupon.Organization)
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
@@ -149,7 +149,7 @@ func (r Repo) GetCouponsSearch(ctx context.Context, s string) ([]entities.Coupon
 
 	for rows.Next() {
 		coupon := entities.NewCoupon()
-		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory)
+		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory, &coupon.Organization)
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
@@ -184,7 +184,7 @@ func (r Repo) GetCouponsByRegion(ctx context.Context, region string) ([]entities
 
 	for rows.Next() {
 		coupon := entities.NewCoupon()
-		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory)
+		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory, &coupon.Organization)
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
@@ -219,7 +219,7 @@ func (r Repo) GetCouponsByCategory(ctx context.Context, category string) ([]enti
 
 	for rows.Next() {
 		coupon := entities.NewCoupon()
-		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory)
+		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory, &coupon.Organization)
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
@@ -254,7 +254,7 @@ func (r Repo) GetCouponsBySubcategory(ctx context.Context, category string) ([]e
 
 	for rows.Next() {
 		coupon := entities.NewCoupon()
-		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory)
+		err := rows.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory, &coupon.Organization)
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
@@ -285,7 +285,7 @@ func (r Repo) GetCoupon(ctx context.Context, id string) (entities.Coupon, error)
 	}
 
 	coupon := entities.NewCoupon()
-	err := row.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory)
+	err := row.Scan(&coupon.ID, &coupon.Name, &coupon.Description, &coupon.Price, &coupon.Percent, &coupon.Level, &coupon.Region, &coupon.Category, &coupon.Subcategory, &coupon.Organization)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entities.NewCoupon(), entities.ErrCouponDoesNotExist
