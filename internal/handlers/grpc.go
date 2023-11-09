@@ -15,12 +15,34 @@ type Server struct {
 	service.MembersService
 	service.CategoryService
 	service.RegionService
+	service.LinkService
 	adminpb.UnimplementedAdminServiceServer
 }
 
 type AdminService interface {
 	GetCoupons(ctx context.Context) ([]entities.Coupon, error)
 	GetSubscriptions(ctx context.Context) ([]entities.Subscription, error)
+}
+
+func (s Server) GetLinksGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb.Links, error) {
+	links, err := s.LinkService.GetLinks(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var Response = &adminpb.Links{Links: make([]*adminpb.Link, len(links))}
+
+	for i := range links {
+		var link = &adminpb.Link{
+			Id:     links[i].Id,
+			Name:   links[i].Name,
+			Link:   links[i].Link,
+			Region: links[i].Region,
+		}
+		Response.Links[i] = link
+	}
+
+	return Response, nil
 }
 
 func (s Server) GetSubsGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb.SubscriptionsResponse, error) {
@@ -45,8 +67,59 @@ func (s Server) GetSubsGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb.Su
 	return Response, nil
 }
 
+func (s Server) UpdateCoupon(ctx context.Context, in *adminpb.Coupon) (*adminpb.UpdateMembersResponse, error) {
+	err := s.CouponService.UpdateCoupon(ctx, in.ID, entities.Coupon{
+		Name:        in.Name,
+		Description: in.Description,
+		Price:       int(in.Price),
+		Percent:     int(in.Percent),
+		Region:      in.Region,
+		Category:    in.Category,
+		Subcategory: &in.Subcategory,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var Response = &adminpb.UpdateMembersResponse{Message: "updated"}
+
+	return Response, nil
+}
+
 func (s Server) GetCouponsGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb.GetCouponsResponse, error) {
 	coupons, err := s.CouponService.GetCoupons(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var Response = &adminpb.GetCouponsResponse{Coupons: make([]*adminpb.Coupon, len(coupons))}
+	for i, v := range coupons {
+		var media = &adminpb.Media{
+			ID:   v.Media.ID,
+			Path: v.Media.Path,
+		}
+
+		var coupon = &adminpb.Coupon{
+			ID:          v.ID,
+			Name:        v.Name,
+			Description: v.Description,
+			Price:       int32(v.Price),
+			Level:       int32(v.Level),
+			Percent:     int32(v.Percent),
+			ContentUrl:  v.ContentUrl,
+			Media:       media,
+			Region:      v.Region,
+			Category:    v.Category,
+		}
+		if v.Subcategory != nil {
+			coupon.Subcategory = *v.Subcategory
+		}
+		Response.Coupons[i] = coupon
+	}
+	return Response, nil
+}
+
+func (s Server) GetCouponsSearchGRPC(ctx context.Context, in *adminpb.Search) (*adminpb.GetCouponsResponse, error) {
+	coupons, err := s.CouponService.GetCouponsSearch(ctx, in.S)
 	if err != nil {
 		return nil, err
 	}

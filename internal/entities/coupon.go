@@ -13,17 +13,18 @@ var (
 )
 
 type Coupon struct {
-	ID          string  `json:"id"`
-	Name        string  `form:"name" json:"name"`
-	Description string  `form:"description" json:"description"`
-	Price       int     `form:"price" json:"price"`
-	Level       int     `form:"level" json:"level"`
-	Percent     int     `form:"percent" json:"percent"`
-	ContentUrl  string  `json:"content_url"`
-	Media       Media   `json:"-"`
-	Region      string  `form:"region" json:"region"`
-	Category    string  `form:"category" json:"category"`
-	Subcategory *string `form:"subcategory" json:"subcategory"`
+	ID           string  `json:"id"`
+	Name         string  `form:"name" json:"name"`
+	Description  string  `form:"description" json:"description"`
+	Price        int     `form:"price" json:"price"`
+	Level        int     `form:"level" json:"level"`
+	Percent      int     `form:"percent" json:"percent"`
+	ContentUrl   string  `json:"content_url"`
+	Media        Media   `json:"-"`
+	Region       string  `form:"region" json:"region"`
+	Category     string  `form:"category" json:"category"`
+	Subcategory  *string `form:"subcategory" json:"subcategory"`
+	Organization string  `form:"organization" json:"organization"`
 }
 
 type Media struct {

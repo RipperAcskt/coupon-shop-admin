@@ -24,7 +24,7 @@ func (r Repo) CreateOrganization(ctx context.Context, org entities.Organization)
 	defer cancel()
 
 	var id string
-	err := r.db.QueryRowContext(queryContext, "SELECT id FROM organization WHERE email_adimin = $1", org.EmailAdmin).Scan(&id)
+	err := r.db.QueryRowContext(queryContext, "SELECT id FROM organization WHERE email_admin = $1", org.EmailAdmin).Scan(&id)
 	if err == nil {
 		return entities.ErrOrganizationAlreadyExists
 	}
@@ -38,7 +38,7 @@ func (r Repo) CreateOrganization(ctx context.Context, org entities.Organization)
 			isLevelCorrect = true
 		}
 	}
-	if isLevelCorrect == false {
+	if isLevelCorrect == false && org.LevelSubscription != 0 {
 		return fmt.Errorf("error : level of subscription isn't correct")
 	}
 	_, err = r.db.ExecContext(queryContext, "INSERT INTO organization VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",

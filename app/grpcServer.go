@@ -10,7 +10,7 @@ import (
 	"net"
 )
 
-func StartGrpcServer(ctx context.Context, subService service.SubscriptionService, couponService service.CouponService, organizationService service.OrganizationService, membersService service.MembersService, categoryService service.CategoryService, region service.RegionService) error {
+func StartGrpcServer(ctx context.Context, subService service.SubscriptionService, couponService service.CouponService, organizationService service.OrganizationService, membersService service.MembersService, categoryService service.CategoryService, region service.RegionService, link service.LinkService) error {
 	lis, err := net.Listen("tcp", ":8081")
 	if err != nil {
 		log.Fatalln("Failed to listen grpc server: ", err)
@@ -22,6 +22,7 @@ func StartGrpcServer(ctx context.Context, subService service.SubscriptionService
 		OrganizationService:             organizationService,
 		CategoryService:                 categoryService,
 		RegionService:                   region,
+		LinkService:                     link,
 		UnimplementedAdminServiceServer: adminpb.UnimplementedAdminServiceServer{},
 	}
 

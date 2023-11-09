@@ -22,6 +22,7 @@ type CouponRepoInterface interface {
 	GetCouponsByRegion(ctx context.Context, region string) ([]entities.Coupon, error)
 	GetCouponsByCategory(ctx context.Context, category string) ([]entities.Coupon, error)
 	GetCouponsBySubcategory(ctx context.Context, category string) ([]entities.Coupon, error)
+	GetCouponsSearch(ctx context.Context, s string) ([]entities.Coupon, error)
 }
 
 func NewCouponService(repo CouponRepoInterface, cfg config.Config) CouponService {
@@ -34,6 +35,10 @@ func NewCouponService(repo CouponRepoInterface, cfg config.Config) CouponService
 func (svc CouponService) CreateCoupon(ctx context.Context, coupon entities.Coupon) error {
 	err := svc.repo.CreateCoupon(ctx, coupon)
 	return err
+}
+
+func (svc CouponService) GetCouponsSearch(ctx context.Context, s string) ([]entities.Coupon, error) {
+	return svc.repo.GetCouponsSearch(ctx, s)
 }
 
 func (svc CouponService) GetCoupons(ctx context.Context) ([]entities.Coupon, error) {

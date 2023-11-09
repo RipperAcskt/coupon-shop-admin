@@ -42,7 +42,7 @@ func (r Repo) GetLinks(ctx context.Context) ([]entities.Link, error) {
 	links := make([]entities.Link, 0)
 	for rows.Next() {
 		link := entities.Link{}
-		err := rows.Scan(&link.Id, &link.Name, &link.Link, link.Region)
+		err := rows.Scan(&link.Id, &link.Name, &link.Link, &link.Region)
 		if err != nil {
 			return nil, fmt.Errorf("rows scan failed: %w", err)
 		}
@@ -65,7 +65,7 @@ func (r Repo) GetLinkByRegion(ctx context.Context, region string) (entities.Link
 	}
 
 	link := entities.Link{}
-	err := row.Scan(&link.Id, &link.Name, &link.Link, link.Region)
+	err := row.Scan(&link.Id, &link.Name, &link.Link, &link.Region)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entities.Link{}, entities.ErrLinkDoesNotExist
