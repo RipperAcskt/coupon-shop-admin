@@ -16,7 +16,7 @@ func (r Repo) CreateRegion(ctx context.Context, region entities.Region) error {
 	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	row := r.db.QueryRowContext(queryCtx, "INSERT INTO regions VALUES($1, $2)", region.Id, region.Name)
+	row := r.db.QueryRowContext(queryCtx, "INSERT INTO regions VALUES($1, $2, $3, $4)", region.Id, region.Name, region.Tg, region.Vk)
 	if row.Err() != nil {
 		return fmt.Errorf("query row context order failed: %w", row.Err())
 	}
@@ -41,7 +41,7 @@ func (r Repo) GetRegions(ctx context.Context) ([]entities.Region, error) {
 
 	for rows.Next() {
 		region := entities.Region{}
-		err := rows.Scan(&region.Id, &region.Name)
+		err := rows.Scan(&region.Id, &region.Name, &region.Tg, &region.Vk)
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
@@ -56,7 +56,7 @@ func (r Repo) UpdateRegion(ctx context.Context, id string, region entities.Regio
 	queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	res, err := r.db.ExecContext(queryCtx, "UPDATE regions SET name = $1 WHERE id = $2", region.Name, id)
+	res, err := r.db.ExecContext(queryCtx, "UPDATE regions SET name = $1, tg = $2, vk = $3 WHERE id = $4", region.Name, region.Tg, region.Vk, id)
 	if err != nil {
 		return fmt.Errorf("exec context failed: %w", err)
 	}
