@@ -187,6 +187,8 @@ func (s Server) GetRegionsGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb
 	for _, v := range regions {
 		Response.Regions = append(Response.Regions, &adminpb.Region{
 			Region: v.Name,
+			Tg:     v.Tg,
+			Vk:     v.Vk,
 		})
 	}
 	return Response, nil
