@@ -24,23 +24,21 @@ type AdminService interface {
 	GetSubscriptions(ctx context.Context) ([]entities.Subscription, error)
 }
 
-func (s Server) GetLinksGRPC(ctx context.Context, in *adminpb.Empty) (*adminpb.Links, error) {
-	links, err := s.LinkService.GetLinks(ctx)
+func (s Server) GetLinksGRPC(ctx context.Context, in *adminpb.Region) (*adminpb.Links, error) {
+	links, err := s.LinkService.GetLinkByRegion(ctx, in.Region)
 	if err != nil {
 		return nil, err
 	}
 
-	var Response = &adminpb.Links{Links: make([]*adminpb.Link, len(links))}
+	var Response = &adminpb.Links{}
 
-	for i := range links {
-		var link = &adminpb.Link{
-			Id:     links[i].Id,
-			Name:   links[i].Name,
-			Link:   links[i].Link,
-			Region: links[i].Region,
-		}
-		Response.Links[i] = link
+	var link = &adminpb.Link{
+		Id:     links.Id,
+		Name:   links.Name,
+		Link:   links.Link,
+		Region: links.Region,
 	}
+	Response.Links = link
 
 	return Response, nil
 }
