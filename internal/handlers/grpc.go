@@ -285,6 +285,7 @@ func (s Server) GetOrganizationInfo(ctx context.Context, in *adminpb.InfoOrganiz
 		LevelSubscription: int32(orgInfo.LevelSubscription),
 		Address:           orgInfo.Address,
 		Members:           make([]*adminpb.MemberInfo, len(orgInfo.Members)),
+		ContentUrl:        orgInfo.ContentUrl,
 	}
 	fmt.Printf("%+v", Response)
 	for i, v := range orgInfo.Members {
